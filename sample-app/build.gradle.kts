@@ -2,9 +2,11 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
-    kotlin("multiplatform")
-    kotlin("plugin.compose")
-    id("org.jetbrains.compose")
+    kotlin("multiplatform").version("2.0.21")
+    kotlin("plugin.compose").version("2.0.21")
+    id("org.jetbrains.compose").version("1.7.0")
+    id("com.google.devtools.ksp").version("2.0.21-1.0.25")
+    id("org.jetbrains.compose-hot-reload")
 }
 
 kotlin {

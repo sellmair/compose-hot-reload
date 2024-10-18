@@ -40,7 +40,8 @@ dependencyResolutionManagement {
 include(":hot-reload-gradle-plugin")
 include(":hot-reload-runtime")
 include(":hot-reload-ide-plugin")
-include(":sample-app")
+include(":hot-reload-annotation")
+include(":hot-reload-ksp")
 
 gradle.lifecycle.beforeProject {
     group = "org.jetbrains.compose"

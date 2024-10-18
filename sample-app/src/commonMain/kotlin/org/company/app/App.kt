@@ -12,14 +12,22 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.sample_app.generated.resources.*
+import sample_app.generated.resources.*
 import org.company.app.theme.AppTheme
 import org.company.app.theme.LocalThemeIsDark
 import kotlinx.coroutines.isActive
+import org.jetbrains.compose.hotreload.HotReload
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 
+@HotReload
+@Composable
+internal fun Check() {
+    Text("check")
+}
+
+@HotReload
 @Composable
 internal fun App() = AppTheme {
     Column(
