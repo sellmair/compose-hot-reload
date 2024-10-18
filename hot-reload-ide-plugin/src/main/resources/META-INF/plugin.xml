@@ -1,0 +1,9 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Compose Application View"
+                    icon="AllIcons.CodeWithMe.CwmPermissionView"
+                    anchor="right"
+                    factoryClass="org.jetbrains.compose.hotreload.AppViewToolWindowFactory"
+        />
+    </extensions>
+</idea-plugin>
