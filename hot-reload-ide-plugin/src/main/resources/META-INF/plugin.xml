@@ -1,0 +1,9 @@
+<idea-plugin>
+    <depends>org.jetbrains.kotlin</depends>
+    <extensions defaultExtensionNs="com.intellij">
+        <codeInsight.lineMarkerProvider
+                language="kotlin"
+                implementationClass="org.jetbrains.compose.hotreload.HotReloadLineMarkerProvider"
+        />
+    </extensions>
+</idea-plugin>

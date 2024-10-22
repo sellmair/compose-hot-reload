@@ -1,11 +1,18 @@
 @file:Suppress("UnstableApiUsage")
 
+import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
+
 pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
     }
 }
+
+plugins {
+    id("org.jetbrains.intellij.platform.settings").version("2.1.0")
+}
+
 /*
 Configure Repositories / Dependencies
 */
@@ -27,10 +34,12 @@ dependencyResolutionManagement {
                 includeGroupByRegex(".*google.*")
             }
         }
+        intellijPlatform { defaultRepositories() }
     }
 }
 
 include(":hot-reload-annotation")
+include(":hot-reload-ide-plugin")
 include(":hot-reload-agent")
 include(":hot-reload-gradle-plugin")
 include(":hot-reload-runtime-api")
