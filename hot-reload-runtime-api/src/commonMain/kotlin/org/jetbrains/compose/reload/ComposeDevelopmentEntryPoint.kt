@@ -12,3 +12,7 @@ public fun HotReload(child: @Composable () -> Unit): Unit = ComposeDevelopmentEn
 
 @Composable
 public expect fun ComposeDevelopmentEntryPoint(child: @Composable () -> Unit)
+
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.SOURCE)
+public annotation class DevEntryPoint

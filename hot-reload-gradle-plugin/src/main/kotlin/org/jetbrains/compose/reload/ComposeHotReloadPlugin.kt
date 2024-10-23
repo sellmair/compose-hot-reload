@@ -20,6 +20,8 @@ class ComposeHotReloadPlugin : Plugin<Project> {
             target.setupComposeHotReloadExecTasks()
             target.setupComposeHotRunConventions()
         }
+
+        target.registerRunDevEntryPointTask()
     }
 }
 

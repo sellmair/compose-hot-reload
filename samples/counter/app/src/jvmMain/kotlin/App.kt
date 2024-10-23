@@ -10,8 +10,9 @@ import androidx.compose.ui.unit.sp
 import io.sellmair.evas.compose.EvasLaunching
 import io.sellmair.evas.compose.composeValue
 import io.sellmair.evas.set
+import org.jetbrains.compose.reload.DevEntryPoint
 
-
+@DevEntryPoint
 @Composable
 fun App() {
     val applicationStateCounter = CounterState.composeValue()
