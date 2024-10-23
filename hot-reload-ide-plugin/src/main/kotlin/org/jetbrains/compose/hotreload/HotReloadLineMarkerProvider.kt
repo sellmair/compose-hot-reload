@@ -2,8 +2,11 @@ package org.jetbrains.compose.hotreload
 
 import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerProvider
+import com.intellij.execution.lineMarker.RunLineMarkerContributor
+import com.intellij.execution.lineMarker.RunLineMarkerProvider
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.editor.markup.GutterIconRenderer
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootModificationTracker
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.CachedValueProvider
@@ -22,17 +25,21 @@ class HotReloadLineMarkerProvider : LineMarkerProvider {
     override fun getLineMarkerInfo(element: com.intellij.psi.PsiElement): LineMarkerInfo<*>? {
         if (element !is LeafPsiElement) return null
         if (element.node.elementType != KtTokens.IDENTIFIER) return null
+
         val ktFun = element.parent as? KtNamedFunction ?: return null
         if (!ktFun.isValidDevEntryPoint()) return null
 
-        return LineMarkerInfo(
+        val fqName = ktFun.fqName?.asString() ?: return null
+        val module = ProjectFileIndex.getInstance(ktFun.project).getModuleForFile(ktFun.containingFile.virtualFile)
+        if (module == null || module.isDisposed) return null
+        val modulePath = ExternalSystemApiUtil.getExternalProjectPath(module) ?: return null
+
+        val entryPoint = DevEntryPoint(fqName, modulePath)
+
+        return RunLineMarkerProvider.createLineMarker(
             element,
-            element.textRange,
             AllIcons.Actions.RerunAutomatically,
-            null,
-            null,
-            GutterIconRenderer.Alignment.LEFT,
-            { "Hot reload" }
+            listOf(RunLineMarkerContributor.Info(RunDevEntryPointAction(entryPoint)))
         )
     }
 

@@ -1,4 +1,5 @@
 <idea-plugin>
+    <depends>com.intellij.gradle</depends>
     <depends>org.jetbrains.kotlin</depends>
     <extensions defaultExtensionNs="com.intellij">
         <codeInsight.lineMarkerProvider
