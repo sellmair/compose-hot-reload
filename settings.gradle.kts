@@ -38,7 +38,6 @@ dependencyResolutionManagement {
     }
 }
 
-include(":hot-reload-annotation")
 include(":hot-reload-ide-plugin")
 include(":hot-reload-agent")
 include(":hot-reload-gradle-plugin")

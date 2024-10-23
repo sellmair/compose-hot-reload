@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.psi.psiUtil.isPrivate
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 
-private const val HOT_RELOAD_ANNOTATION_FQN = "org.jetbrains.compose.hotreload.DevEntryPoint"
+private const val HOT_RELOAD_ANNOTATION_FQN = "org.jetbrains.compose.reload.DevEntryPoint"
 
 class HotReloadLineMarkerProvider : LineMarkerProvider {
     override fun getLineMarkerInfo(element: com.intellij.psi.PsiElement): LineMarkerInfo<*>? {
