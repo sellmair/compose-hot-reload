@@ -19,6 +19,7 @@ publishing {
 }
 
 dependencies {
+    implementation(project(":hot-reload-orchestration"))
     implementation(deps.slf4j.api)
     implementation(deps.coroutines.core)
     implementation(deps.javassist)

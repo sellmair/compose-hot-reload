@@ -7,7 +7,7 @@ import androidx.compose.ui.window.rememberWindowState
 import io.sellmair.evas.Events
 import io.sellmair.evas.States
 import io.sellmair.evas.compose.installEvas
-import org.jetbrains.compose.reload.ComposeDevelopmentEntryPoint
+import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -27,7 +27,7 @@ fun main() {
             )
         ) {
             installEvas(events, states) {
-                ComposeDevelopmentEntryPoint {
+                DevelopmentEntryPoint {
                     App()
                 }
             }

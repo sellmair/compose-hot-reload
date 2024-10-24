@@ -18,6 +18,8 @@ dependencies {
 
     devCompileOnly(project(":hot-reload-agent"))
     devCompileOnly(deps.hotswapAgentCore)
+    devImplementation(project(":hot-reload-orchestration"))
+
     devImplementation(deps.javassist)
     devImplementation(deps.slf4j.api)
     devImplementation(compose.desktop.common)

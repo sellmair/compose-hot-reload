@@ -1,5 +1,8 @@
 package org.jetbrains.compose.reload
 
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
@@ -8,9 +11,14 @@ import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.withType
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
+import org.jetbrains.compose.reload.orchestration.OrchestrationClient
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest.ChangeType
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import java.net.InetAddress
 import java.net.Socket
+import java.nio.file.Path
+import kotlin.io.path.absolute
 
 
 internal fun Project.setupComposeHotClasspathTasks() {
@@ -56,19 +64,30 @@ internal open class ComposeHotClasspathTask : DefaultTask() {
             logger.quiet("Incremental run")
         }
 
-        val output = StringBuilder()
+        val changedClassFiles = mutableMapOf<Path, ChangeType>()
         inputs.getFileChanges(classpath).forEach { change ->
-            val formattedChange = "[${change.changeType}] ${change.file}"
-            output.appendLine(formattedChange)
-            logger.quiet(formattedChange)
+            val changeType = when (change.changeType) {
+                org.gradle.work.ChangeType.ADDED -> ChangeType.Added
+                org.gradle.work.ChangeType.MODIFIED -> ChangeType.Modified
+                org.gradle.work.ChangeType.REMOVED -> ChangeType.Removed
+            }
+
+            changedClassFiles[change.file.toPath().absolute()] = changeType
+            logger.quiet("[${change.changeType}] ${change.file}")
         }
 
-        // Sending instructions to agent!
-        Socket(InetAddress.getLocalHost(), agentPort.get()).getOutputStream().use { out ->
-            out.bufferedWriter().use { writer ->
-                writer.write(output.toString())
-                writer.flush()
-            }
+        val client = OrchestrationClient() ?: error("Failed to create 'OrchestrationClient'!")
+        logger.quiet("Sending 'ReloadClassesRequest'")
+
+        runBlocking {
+            val message = OrchestrationMessage.ReloadClassesRequest(changedClassFiles)
+
+            logger.quiet("Entered run blocking")
+            client.send(message)
+
+            logger.quiet("Awaiting response for ${message.messageId}")
+            client.receive.first { reply -> reply == message }
+
         }
     }
 }

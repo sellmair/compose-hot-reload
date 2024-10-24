@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 
 @Composable
 @InternalHotReloadApi
-public fun ComposeDevelopmentEntryPointJvm(child: @Composable () -> Unit) {
-    HotReload { child() }
+public fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
+    child()
 }
 
 @RequiresOptIn("Internal API: Do not use!", RequiresOptIn.Level.ERROR)
-annotation class InternalHotReloadApi
+public annotation class InternalHotReloadApi

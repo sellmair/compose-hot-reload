@@ -132,8 +132,8 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
         return emptyFlow()
     }
 
-    val port = ComposeHotReloadAgent.port.filterNotNull().first()
-    logger.debug("'Compose Recompiler': Agent listening on port '$port'")
+    val port = ComposeHotReloadAgent.orchestration.port()
+    logger.debug("'Compose Recompiler': Orchestration listening on port '$port'")
 
     val output = MutableSharedFlow<String>(
         extraBufferCapacity = 1024,
@@ -151,7 +151,7 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
                 "--console=plain",
                 "--no-daemon",
                 "--priority=low",
-                "-Dcompose.hot.reload.agent.port=$port",
+                "-Dcompose.reload.orchestration.port=$port",
                 "-t"
             )
             .redirectErrorStream(true)

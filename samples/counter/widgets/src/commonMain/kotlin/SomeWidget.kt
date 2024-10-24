@@ -4,5 +4,5 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun SomeWidget() {
-    Text("👋 Hello from 'widgets'", fontSize = 24.0.sp)
+    Text("👋 Hello from 'widgets'!!!", fontSize = 24.0.sp)
 }
