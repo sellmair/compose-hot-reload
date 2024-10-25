@@ -2,3 +2,4 @@
 .kotlin
 .idea
 **/build
+.intellijPlatform
