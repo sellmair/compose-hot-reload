@@ -44,15 +44,13 @@ fun main() {
 @DevelopmentEntryPoint(600, 400)
 @Composable
 fun Dev() {
-    DevelopmentEntryPoint {
-        Column {
-            var txt by remember { mutableStateOf("init") }
-            Text(txt)
-            Button(
-                onClick = { txt += " " + Random.nextBoolean().toString() }
-            ) {
-                Text("Click ME")
-            }
+    Column {
+        var txt by remember { mutableStateOf("init") }
+        Text(txt)
+        Button(
+            onClick = { txt += " " + Random.nextBoolean().toString() }
+        ) {
+            Text("Click ME")
         }
     }
 }

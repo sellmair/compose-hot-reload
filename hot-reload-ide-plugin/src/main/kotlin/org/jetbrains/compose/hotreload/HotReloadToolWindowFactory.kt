@@ -1,7 +1,7 @@
 package org.jetbrains.compose.hotreload
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -11,18 +11,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.intellij.openapi.components.service
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import org.jetbrains.compose.reload.orchestration.OrchestrationClient
 import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.connectOrchestrationClient
 import org.jetbrains.jewel.bridge.addComposeTab
 import org.jetbrains.jewel.ui.component.Text
-
-private val LOG = logger<HotReloadToolWindowFactory>()
 
 class HotReloadToolWindowFactory : ToolWindowFactory, DumbAware {
 
@@ -49,13 +47,20 @@ private fun HotReloadPanel(port: Int) {
         val logMessages = remember { mutableStateListOf<String>() }
         LaunchedEffect(Unit) {
             client.invokeWhenMessageReceived { msg ->
-                logMessages.add(msg.toString())
+                if (msg is OrchestrationMessage.LogMessage) {
+                    logMessages.addAll(0, msg.log.lines().reversed())
+                } else {
+                    logMessages.add(0, msg.toString())
+                }
             }
         }
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxWidth(),
+            reverseLayout = true,
         ) {
-            items(logMessages.size) { i -> Text(logMessages[i]) }
+            items(logMessages.size) { i ->
+                Text(logMessages[i])
+            }
         }
     }
 }
