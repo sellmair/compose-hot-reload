@@ -5,6 +5,9 @@ import com.intellij.codeInsight.daemon.LineMarkerProvider
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.execution.lineMarker.RunLineMarkerProvider
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.components.service
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootModificationTracker
@@ -76,4 +79,14 @@ class HotReloadLineMarkerProvider : LineMarkerProvider {
     @Suppress("UnstableApiUsage")
     private fun KtAnnotationEntry.getQualifiedName(): String? =
         analyze(BodyResolveMode.PARTIAL).get(BindingContext.ANNOTATION, this)?.fqName?.asString()
+}
+
+private class RunDevEntryPointAction(
+    private val entryPoint: DevEntryPoint
+) : AnAction({ "Run development app" }, AllIcons.Actions.RerunAutomatically) {
+    override fun actionPerformed(event: AnActionEvent) {
+        val project = event.project ?: return
+        val service = project.service<HotReloadService>()
+        service.runDevEntryPoint(entryPoint)
+    }
 }
