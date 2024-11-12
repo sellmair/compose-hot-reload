@@ -48,7 +48,7 @@ private fun HotReloadPanel(port: Int) {
         LaunchedEffect(Unit) {
             client.invokeWhenMessageReceived { msg ->
                 if (msg is OrchestrationMessage.LogMessage) {
-                    logMessages.addAll(0, msg.log.lines().reversed())
+                    logMessages.addAll(0, msg.message.lines().reversed())
                 } else {
                     logMessages.add(0, msg.toString())
                 }
