@@ -70,6 +70,13 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         }
     }
 
+    /* Configure Dev Tool Window */
+    run {
+        if (project.showDevToolWindow.orNull == true) {
+            systemProperty("compose.reload.showDevToolWindow", true)
+        }
+    }
+
 
     /* Generic JVM args for hot reload*/
     run {
