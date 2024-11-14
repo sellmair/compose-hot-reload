@@ -9,8 +9,8 @@
                 implementationClass="org.jetbrains.compose.hotreload.HotReloadLineMarkerProvider"/>
         <toolWindow
                 id="Hot Reload"
-                icon="AllIcons.CodeWithMe.CwmPermissionView"
-                anchor="right"
+                icon="AllIcons.Actions.GroupBy"
+                anchor="bottom"
                 factoryClass="org.jetbrains.compose.hotreload.HotReloadToolWindowFactory"/>
     </extensions>
 </idea-plugin>

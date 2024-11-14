@@ -1,8 +1,9 @@
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
@@ -44,13 +45,16 @@ fun main() {
 @DevelopmentEntryPoint(600, 400)
 @Composable
 fun Dev() {
-    Column {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         var txt by remember { mutableStateOf("init") }
         Text(txt)
         Button(
             onClick = { txt += " " + Random.nextBoolean().toString() }
         ) {
-            Text("Click ME")
+            Text("Click me")
         }
     }
 }
