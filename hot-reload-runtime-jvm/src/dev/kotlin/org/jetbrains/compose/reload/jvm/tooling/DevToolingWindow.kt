@@ -1,13 +1,16 @@
 package org.jetbrains.compose.reload.jvm.tooling
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.WindowDecoration
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
@@ -22,10 +25,8 @@ private val logger = createLogger()
 
 internal class DevToolingWindow : ComposeReloadPremainExtension {
     override fun premain() {
-        /*
-        On headless mode: Don't show a window
-        */
-        if (HotReloadEnvironment.isHeadless) {
+        if (!HotReloadEnvironment.showDevToolWindow) {
+            logger.debug("Don't show Compose Dev Tooling Window")
             return
         }
 
