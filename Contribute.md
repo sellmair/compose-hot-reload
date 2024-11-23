@@ -33,3 +33,28 @@ participate in the orchestration by listening for messages and broadcasting UI r
 When the dev runtime is launched, a Gradle Daemon is launched in continuous mode, which will connect
 to the orchestration and send 'ReloadClassesRequests' when the actual .class files for the runtime classpath
 changes.
+
+# Use locally built version in your project
+
+1. Make code changes. 
+2. Change the version in `gradle.properties`, e.g. to `1.0.0-DEBUG`.
+3. Run `gradlew publishAllPublicationsToLocalRepository`.
+4. In your local project, add the following entries to your `settings.gradle.kts`:
+```gradle
+pluginManagement {
+    repositories {
+        maven("file://path/to/compose-hot-reload/build/repo")
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        maven("file://path/to/compose-hot-reload/build/repo")
+    }
+}
+```
+5. In your local project, update the version of `compose-hot-reload` to whatever you set in step 1:
+```
+id("org.jetbrains.compose-hot-reload") version "1.0.0-DEBUG"
+```
+6. Run project as usual.
