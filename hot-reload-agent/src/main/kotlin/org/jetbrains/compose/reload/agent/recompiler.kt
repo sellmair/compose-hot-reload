@@ -35,9 +35,15 @@ internal fun launchRecompiler() {
     val recompilerThread = thread(name = "Compose Recompiler") {
         logger.debug("'Compose Recompiler' started")
 
+        val gradleScriptCommand = if ("win" in System.getProperty("os.name").lowercase()) {
+            arrayOf("cmd", "/c", "start", "gradlew.bat")
+        } else {
+            arrayOf("./gradlew")
+        }
+
         val process = ProcessBuilder().directory(File(composeBuildRoot))
             .command(
-                if ("win" in System.getProperty("os.name").lowercase()) "gradlew.bat" else "./gradlew",
+                *gradleScriptCommand,
                 createGradleCommand(composeBuildProject, composeBuildCompileTask),
                 "--console=plain",
                 "--no-daemon",
