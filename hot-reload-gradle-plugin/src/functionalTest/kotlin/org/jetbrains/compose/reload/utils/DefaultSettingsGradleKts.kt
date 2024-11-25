@@ -35,7 +35,7 @@ internal class DefaultSettingsGradleKtsExtension : BeforeTestExecutionCallback {
                 }
                 
                 repositories {
-                    maven(file("${localTestRepoDirectory.absolutePath}"))
+                    maven(file("${localTestRepoDirectory.absolutePath.replace("\\", "\\\\")}"))
                     mavenCentral()
                     maven("https://repo.sellmair.io")
                     google()
@@ -44,7 +44,7 @@ internal class DefaultSettingsGradleKtsExtension : BeforeTestExecutionCallback {
 
             dependencyResolutionManagement {
                 repositories {
-                    maven(file("${localTestRepoDirectory.absolutePath}"))
+                    maven(file("${localTestRepoDirectory.absolutePath.replace("\\", "\\\\")}"))
                     mavenCentral()
                     maven("https://repo.sellmair.io")
                     google()

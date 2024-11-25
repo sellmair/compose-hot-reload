@@ -15,22 +15,21 @@ class ErrorRecoveryTests {
     fun `good - bad - good`(fixture: HotReloadTestFixture) = fixture.runTest {
         val code = fixture.initialSourceCode(
             """
-            import androidx.compose.material3.Text
             import org.jetbrains.compose.reload.underTest.*
             
             fun main() {
                 underTestApplication {
-                    Text("Hello")
+                    TestText("Hello")
                 }
             }
         """.trimIndent()
         )
 
         fixture.checkScreenshot("0-initial")
-        code.replaceText("""Text("Hello")""", """error("Foo")""")
+        code.replaceText("""TestText("Hello")""", """error("Foo")""")
         assertEquals("Foo", fixture.skipToMessage<OrchestrationMessage.UIException>().message)
 
-        code.replaceText("""error("Foo")""", """Text("Recovered")""")
+        code.replaceText("""error("Foo")""", """TestText("Recovered")""")
         fixture.awaitReload()
         fixture.checkScreenshot("1-recovered")
     }
@@ -62,7 +61,7 @@ class ErrorRecoveryTests {
                     onTestEvent {
                         state++
                     }
-                    Text("Before: ${d}state", fontSize = 48.sp)
+                    TestText("Before: ${d}state")
                 }
             }
             """.trimIndent()

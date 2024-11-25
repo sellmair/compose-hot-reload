@@ -7,6 +7,7 @@ pluginManagement {
         maven(file("../..//build/repo"))
         maven("https://repo.sellmair.io")
         mavenCentral()
+        gradlePluginPortal()
     }
 
     plugins {

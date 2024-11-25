@@ -25,13 +25,13 @@ class DevelopmentEntryPointTests {
 
         mainKt.writeText(
             """
-            import androidx.compose.material3.Text
+            import org.jetbrains.compose.reload.underTest.*
             import androidx.compose.runtime.Composable
             import androidx.compose.ui.unit.sp
             
             @Composable
             fun Widget(text: String) {
-                Text("Before: " + text, fontSize = 48.sp)
+                TestText("Before: " + text, fontSize = 48.sp)
             }
         """.trimIndent()
         )

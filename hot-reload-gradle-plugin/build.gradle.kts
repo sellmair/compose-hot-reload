@@ -37,19 +37,23 @@ tasks.withType<Test>().configureEach {
         }
     }
 
-    dependsOn(":publishLocally")
-    systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
-    systemProperty("junit.jupiter.execution.parallel.enabled", "true")
-    systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
-    systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
-    systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "4")
-    systemProperty("apple.awt.UIElement", true)
+    if (!providers.environmentVariable("CI").isPresent) {
+        systemProperty("junit.jupiter.execution.parallel.enabled", "true")
+        systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
+        systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
+        systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "4")
+        systemProperty("apple.awt.UIElement", true)
+    }
 
-    jvmArgs("-DlogLevel=DEBUG")
-    maxHeapSize = "4G"
+    properties.filter { (key, _) -> key.startsWith("chr") }.forEach { (key, value) ->
+        systemProperty(key, value.toString())
+    }
 
     maxParallelForks = 2
-
+    dependsOn(":publishLocally")
+    systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
+    jvmArgs("-DlogLevel=DEBUG")
+    maxHeapSize = "4G"
 
     testLogging {
         showStandardStreams = true

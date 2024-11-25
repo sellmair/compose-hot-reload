@@ -3,11 +3,7 @@
 package org.jetbrains.compose.reload.utils
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.TestScope
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -96,6 +92,7 @@ class HotReloadTestFixture(
                 test()
             } finally {
                 daemonTestScope.cancel()
+                daemonTestScope.coroutineContext[Job]?.join()
             }
         }
     }
@@ -106,10 +103,17 @@ class HotReloadTestFixture(
     override fun close() {
         orchestration.sendMessage(OrchestrationMessage.ShutdownRequest()).get()
         orchestration.closeGracefully().get()
-        projectDir.path.deleteRecursively()
 
         testScope.cancel()
         daemonTestScope.cancel()
+
+        /* Kludge: Windows tests failed to delete the project dir (maybe some files are still in use?) */
+        run deleteProjectDir@{
+            repeat(10) {
+                runCatching { projectDir.path.deleteRecursively() }
+                    .onSuccess { return@deleteProjectDir }
+            }
+        }
 
         resourcesLock.withLock {
             resources.forEach { resource -> resource.close() }

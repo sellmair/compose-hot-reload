@@ -24,6 +24,7 @@ dependencies {
     implementation(deps.logback)
     implementation(deps.coroutines.swing)
     implementation(compose.uiTest)
+    implementation(compose.components.resources)
 
     api(compose.desktop.common)
     api(compose.material3)

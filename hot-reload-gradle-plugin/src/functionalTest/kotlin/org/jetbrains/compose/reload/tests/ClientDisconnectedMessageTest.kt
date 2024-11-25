@@ -23,7 +23,7 @@ class ClientDisconnectedMessageTest {
             import androidx.compose.ui.unit.sp
             fun main() {
                 underTestApplication {
-                    Text("Hello", fontSize = 48.sp)
+                    TestText("Hello", fontSize = 48.sp)
                 }
             }
         """.trimIndent()

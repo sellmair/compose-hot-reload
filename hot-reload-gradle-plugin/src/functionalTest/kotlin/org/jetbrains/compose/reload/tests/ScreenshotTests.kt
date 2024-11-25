@@ -9,21 +9,19 @@ import kotlin.io.path.appendText
 
 class ScreenshotTests {
 
-    @HostIntegrationTest
     @HotReloadTest
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
     fun `test - simple change`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
-            import androidx.compose.material3.Text
             import androidx.compose.ui.unit.sp
             import androidx.compose.ui.window.*
             import org.jetbrains.compose.reload.underTest.*
             
             fun main() {
                 underTestApplication {
-                    Text("Hello", fontSize = 48.sp)
+                    TestText("Hello")
                 }
             }
             """.trimIndent()
@@ -55,7 +53,7 @@ class ScreenshotTests {
                     }
                     
                     Group {
-                        Text("Before: ${d}state", fontSize = 48.sp)
+                        TestText("Before: ${d}state")
                     }
                 }
             }
@@ -78,14 +76,13 @@ class ScreenshotTests {
     fun `test - kmp with android and jvm`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
-            import androidx.compose.material3.Text
             import androidx.compose.ui.unit.sp
             import androidx.compose.ui.window.*
             import org.jetbrains.compose.reload.underTest.*
             
             fun main() {
                 underTestApplication {
-                    Text("Hello", fontSize = 48.sp)
+                    TestText("Hello")
                 }
             }
             """.trimIndent()
@@ -131,13 +128,13 @@ class ScreenshotTests {
 
         fixture.projectDir.writeText(
             "widgets/src/${fixture.projectMode.fold("commonMain", "main")}/kotlin/Widget.kt", """
-            import androidx.compose.material3.Text
             import androidx.compose.runtime.Composable
             import androidx.compose.ui.unit.sp
+            import org.jetbrains.compose.reload.underTest.*
             
             @Composable
             fun Widget(text: String) {
-                Text("Before: " + text, fontSize = 48.sp)
+                TestText("Before: " + text)
             }
             """.trimIndent()
         )
@@ -145,7 +142,6 @@ class ScreenshotTests {
         fixture.projectDir.writeText(
             "app/src/${fixture.projectMode.fold("commonMain", "main")}/kotlin/Main.kt", """
             import androidx.compose.foundation.layout.*
-            import androidx.compose.material3.Text
             import androidx.compose.ui.unit.sp
             import androidx.compose.ui.window.*
             import org.jetbrains.compose.reload.underTest.*
@@ -184,7 +180,7 @@ class ScreenshotTests {
             fun main() {
                 underTestApplication {
                     Column {
-                        Text("Initial", fontSize = 48.sp)
+                        TestText("Initial")
                         // Add button
                     }
                 }
@@ -195,7 +191,7 @@ class ScreenshotTests {
         fixture.replaceSourceCodeAndReload(
             """// Add button""", """
                 Button(onClick = { }) {
-                    Text("Button")
+                    TestText("Button")
                 }
             """.trimIndent()
         )
@@ -223,7 +219,7 @@ class ScreenshotTests {
                     // add effect
                     
                     Column {
-                        Text("Initial", fontSize = 48.sp)
+                        TestText("Initial")
                         // Add button
                     }
                 }
@@ -262,7 +258,7 @@ class ScreenshotTests {
                     var state by remember { mutableStateOf(0) }
                     onTestEvent { state++ }
                     Group {
-                        Text("Before: %state", fontSize = 48.sp)
+                        TestText("Before: %state")
                     }
                 }
             }
@@ -306,7 +302,7 @@ class ScreenshotTests {
                         if(value == "inc") myLambda() 
                      }
                     
-                    Text("%state")
+                    TestText("%state")
                 }
             }
             """.trimIndent().replace("%", "$")
@@ -340,7 +336,7 @@ class ScreenshotTests {
             
             fun main() {
                 underTestApplication {
-                   Text("%foo", fontSize = 48.sp)
+                   TestText("%foo")
                 }
             }
             """.trimIndent().replace("%", "$")
@@ -362,7 +358,6 @@ class ScreenshotTests {
             import androidx.compose.foundation.layout.Arrangement
             import androidx.compose.foundation.layout.Row
             import androidx.compose.foundation.layout.fillMaxWidth
-            import androidx.compose.material3.Text
             import androidx.compose.runtime.Composable
             import androidx.compose.ui.Modifier
             import androidx.compose.ui.unit.dp
@@ -375,8 +370,8 @@ class ScreenshotTests {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp) ,
                     ) {
-                        Text("A")
-                        Text("B")
+                        TestText("A")
+                        TestText("B")
                     }
                 }
             }

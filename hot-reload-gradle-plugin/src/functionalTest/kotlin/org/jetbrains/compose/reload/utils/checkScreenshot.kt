@@ -6,6 +6,7 @@ import java.awt.Color
 import javax.imageio.ImageIO
 import kotlin.io.path.*
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 import kotlin.test.fail
 
 suspend fun HotReloadTestFixture.checkScreenshot(name: String) {
@@ -18,6 +19,13 @@ suspend fun HotReloadTestFixture.checkScreenshot(name: String) {
 
     val screenshotName = "$name.${screenshot.format}"
     val expectFile = directory.resolve(screenshotName)
+
+    if (TestEnvironment.updateTestData) {
+        expectFile.deleteIfExists()
+        expectFile.createParentDirectories()
+        expectFile.writeBytes(screenshot.data)
+        return
+    }
 
     if (!expectFile.exists()) {
         expectFile.createParentDirectories()
@@ -45,18 +53,23 @@ private fun String.asFileName(): String {
  * @param maxDiffValue The threshold of 'diff' value from which the images are to be considered 'non-equal': The diff
  * value is a number between 0 and 1, describing how different the images are. 0 means that the images are absolutely
  * identical. 1.0 would mean the complete opposite (every black pixel would be white and every white pixel would be black)
+ * @param blur Window size for averaging nearby pixel values (this shall make the image diff more robust for
+ * differences in, for example, antialiasing)
  *
  * @return The differences between the images in human-readable form, or an empty list if the images are
  * equal (enough)
  */
-private fun describeDifference(
+internal fun describeDifference(
     expected: ByteArray, actual: ByteArray,
     backgroundColor: Color = Color.WHITE,
-    maxDiffValue: Float = 0.01f
+    maxDiffValue: Float = 0.01f,
+    blur: Int = 3
 ): List<String> {
     val expectedImage = ImageIO.read(expected.inputStream())
     val actualImage = ImageIO.read(actual.inputStream())
     val diffs = mutableListOf<String>()
+
+    expectedImage
 
 
     if (expectedImage.width != actualImage.width) {
@@ -70,20 +83,59 @@ private fun describeDifference(
     /* Return early if dimensions do not match */
     if (diffs.isNotEmpty()) return diffs
 
-    var diff = 0
+    var diff = 0.0
     var countingPixels = 0
-    for (x in 0 until expectedImage.width) {
-        for (y in 0 until expectedImage.height) {
-            val expectedColor = Color(expectedImage.getRGB(x, y))
-            val actualColor = Color(actualImage.getRGB(x, y))
+    for (xWindow in (0 until expectedImage.width).windowed(size = blur, 1, true)) {
+        for (yWindow in (0 until expectedImage.height).windowed(size = blur, 1, true)) {
+            val expectedColors = mutableListOf<Color>()
+            val actualColors = mutableListOf<Color>()
 
-            if (expectedColor != backgroundColor || actualColor != backgroundColor) {
-                countingPixels++
+            xWindow.forEach { x ->
+                yWindow.forEach { y ->
+                    expectedColors += Color(expectedImage.getRGB(x, y))
+                    actualColors += Color(actualImage.getRGB(x, y))
+                }
             }
 
-            diff += (expectedColor.red - actualColor.red).absoluteValue
-            diff += (expectedColor.green - actualColor.green).absoluteValue
-            diff += (expectedColor.blue - actualColor.blue).absoluteValue
+            val expectedAverageColor = Color(
+                expectedColors.map { it.red }.average().roundToInt(),
+                expectedColors.map { it.green }.average().roundToInt(),
+                expectedColors.map { it.blue }.average().roundToInt()
+            )
+
+            val actualAverageColor = Color(
+                actualColors.map { it.red }.average().roundToInt(),
+                actualColors.map { it.green }.average().roundToInt(),
+                actualColors.map { it.blue }.average().roundToInt()
+            )
+
+            if (expectedAverageColor == backgroundColor && actualAverageColor == backgroundColor) {
+                continue
+            }
+
+            countingPixels++
+
+            /*
+            Jeez, I should slow down a little:
+            This is a very lazy implementation of a penalty score which will "downplay" small diffs as
+            we know that most of our images will use black on white. Therefore, small diffs most likely
+            are just some antialiasing artifacts.
+             */
+            fun penaltyScore(expected: Int, actual: Int): Double {
+                val raw = (expected - actual).absoluteValue
+                return when {
+                    raw < 10 -> 0.0
+                    raw < 20 -> 0.5
+                    raw < 100 -> 1.0
+                    raw < 150 -> 3.0
+                    raw < 200 -> 20.0
+                    else -> raw.toDouble()
+                }
+            }
+
+            diff += penaltyScore(expectedAverageColor.red, actualAverageColor.red)
+            diff += penaltyScore(expectedAverageColor.green, actualAverageColor.green)
+            diff += penaltyScore(expectedAverageColor.blue, actualAverageColor.blue)
         }
     }
 

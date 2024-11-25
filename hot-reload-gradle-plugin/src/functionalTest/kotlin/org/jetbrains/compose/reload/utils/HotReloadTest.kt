@@ -65,7 +65,7 @@ internal class HotReloadTestInvocationContextProvider : TestTemplateInvocationCo
             }
             .filter { invocationContext ->
                 (findAnnotation(context.testMethod, TestOnlyLatestVersions::class.java).isEmpty &&
-                        System.getenv("TEST_ONLY_LATEST_VERSIONS") != "true") ||
+                        !TestEnvironment.testOnlyLatestVersions) ||
                         invocationContext.gradleVersion == TestedGradleVersion.entries.last() &&
                         invocationContext.kotlinVersion == TestedKotlinVersion.entries.last() &&
                         invocationContext.composeVersion == TestedComposeVersion.entries.last() &&
