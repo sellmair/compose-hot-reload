@@ -7,7 +7,6 @@ plugins {
     `publishing-conventions`
 }
 
-
 /* Setup integration test */
 run {
     val main = kotlin.target.compilations.getByName("main")
@@ -26,6 +25,11 @@ run {
 }
 
 tasks.withType<Test>().configureEach {
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(21))
+        vendor.set(JvmVendorSpec.JETBRAINS)
+    })
+
     useJUnitPlatform {
         if (providers.gradleProperty("host-integration-tests").orNull == "true") {
             includeTags("HostIntegrationTest")
