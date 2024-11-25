@@ -9,6 +9,7 @@ import kotlin.io.path.appendText
 
 class ScreenshotTests {
 
+    @HostIntegrationTest
     @HotReloadTest
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
@@ -32,6 +33,7 @@ class ScreenshotTests {
         fixture.checkScreenshot("after")
     }
 
+    @HostIntegrationTest
     @HotReloadTest
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts

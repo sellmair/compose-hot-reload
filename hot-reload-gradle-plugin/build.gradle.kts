@@ -26,9 +26,14 @@ run {
 }
 
 tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-    dependsOn(":publishLocally")
+    useJUnitPlatform {
+        if (providers.gradleProperty("host-integration-tests").orNull == "true") {
+            includeTags("HostIntegrationTest")
+            environment("TEST_ONLY_LATEST_VERSIONS", "true")
+        }
+    }
 
+    dependsOn(":publishLocally")
     systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
     systemProperty("junit.jupiter.execution.parallel.enabled", "true")
     systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
@@ -40,6 +45,7 @@ tasks.withType<Test>().configureEach {
     maxHeapSize = "4G"
 
     maxParallelForks = 2
+
 
     testLogging {
         showStandardStreams = true

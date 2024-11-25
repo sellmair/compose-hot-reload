@@ -24,6 +24,37 @@ jobs:
       - name: Run 'check'
         run: ./gradlew check
 
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: 21
+          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run Macos Integration Tests
+        run: ./gradlew check -Phost-integration-tests=true
+
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: 21
+          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run Windows Integration Tests
+        run: gradlew check -Phost-integration-tests=true
+
+
   compile-samples:
     runs-on: ubuntu-22.04
     steps:
