@@ -18,6 +18,15 @@ run {
         classpath = functionalTest.output.allOutputs + functionalTest.runtimeDependencyFiles
         systemProperty("firework.version", deps.versions.firework.get())
         useJUnitPlatform { includeTags("Warmup") }
+
+        val outputMarker = layout.buildDirectory.file("gradle-test-kit/functionalTestWarmup.marker")
+        outputs.file(outputMarker)
+        outputs.upToDateWhen { outputMarker.get().asFile.exists() }
+        onlyIf { !outputMarker.get().asFile.exists() }
+
+        doLast {
+            outputMarker.get().asFile.writeText("Warmup done")
+        }
     }
 
     val functionalTestTask = tasks.register<Test>("functionalTest") {

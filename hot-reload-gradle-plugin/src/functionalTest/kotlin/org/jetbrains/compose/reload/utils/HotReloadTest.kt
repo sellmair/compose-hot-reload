@@ -16,8 +16,10 @@ import org.junit.jupiter.api.extension.*
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.platform.commons.util.AnnotationUtils.findAnnotation
+import java.io.File
 import java.nio.file.Files
 import java.util.stream.Stream
+import kotlin.io.path.Path
 import kotlin.jvm.optionals.getOrNull
 import kotlin.streams.asStream
 
@@ -221,6 +223,7 @@ private class HotReloadTestFixtureExtension(
         val projectDir = ProjectDir(Files.createTempDirectory("hot-reload-test"))
         val orchestrationServer = startOrchestrationServer()
         val gradleRunner = GradleRunner.create()
+            .withTestKitDir(Path("build/gradle-test-kit").toAbsolutePath().toFile())
             .withProjectDir(projectDir.path.toFile())
             .withGradleVersion(context.gradleVersion.version.version)
             .forwardOutput()
