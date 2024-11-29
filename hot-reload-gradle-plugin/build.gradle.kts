@@ -54,9 +54,10 @@ tasks.withType<Test>().configureEach {
         systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
         systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
         systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "4")
-        systemProperty("apple.awt.UIElement", true)
     }
 
+    /* We do not want to open actual windows */
+    systemProperty("apple.awt.UIElement", true)
 
     maxParallelForks = 2
     dependsOn(":publishLocally")
