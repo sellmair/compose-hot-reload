@@ -40,7 +40,7 @@ internal fun startComposeGroupInvalidationTransformation(instrumentation: Instru
             logger.orchestration("All groups retained")
         }
 
-        invalidations.forEach { (group, scopes) ->
+        invalidations.forEach { group, _ ->
             if (group == null) return@forEach
 
             val methods = newRuntime?.groups[group].orEmpty()
@@ -55,14 +55,14 @@ internal fun startComposeGroupInvalidationTransformation(instrumentation: Instru
     }
 
     /*
-    Register the transformer which will be invoked on all byte-code updating the global group information
+     * Register the transformer which will be invoked on all byte-code updating the global group information
      */
     instrumentation.addTransformer(ComposeGroupInvalidationKeyTransformer)
 }
 
-/*
-This transformer is intended to run on all classes, so that runtime information about Compose groups
-is recorded and invalidations can be tracked.
+/**
+ * This transformer is intended to run on all classes, so that runtime information about Compose groups
+ * is recorded and invalidations can be tracked.
  */
 internal object ComposeGroupInvalidationKeyTransformer : ClassFileTransformer {
     override fun transform(
@@ -70,7 +70,7 @@ internal object ComposeGroupInvalidationKeyTransformer : ClassFileTransformer {
         protectionDomain: ProtectionDomain?, classfileBuffer: ByteArray
     ): ByteArray? {
         try {
-            val classInfo = RuntimeInfo(classfileBuffer) ?: return classfileBuffer
+            val classInfo = RuntimeInfo(classfileBuffer) ?: return null
 
             if (classBeingRedefined == null) {
                 logger.debug("Parsed 'RuntimeInfo' for '$className'")
@@ -79,13 +79,14 @@ internal object ComposeGroupInvalidationKeyTransformer : ClassFileTransformer {
             }
 
             /* If we're redefining a class, then we want to add this to 'pending' */
-            (if (classBeingRedefined == null) runtimeInfo else runtimeInfoRedefinitions).updateAndGet { runtimeInfo ->
+            val state = if (classBeingRedefined == null) runtimeInfo else runtimeInfoRedefinitions
+            state.updateAndGet { runtimeInfo ->
                 runtimeInfo + classInfo
             }
         } catch (t: Throwable) {
             logger.error("Failed parsing 'RuntimeInfo' for '$className'", t)
         }
 
-        return classfileBuffer
+        return null
     }
 }
