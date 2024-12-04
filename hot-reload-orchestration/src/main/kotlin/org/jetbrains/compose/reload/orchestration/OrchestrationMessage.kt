@@ -57,6 +57,14 @@ public sealed class OrchestrationMessage : Serializable {
         }
     }
 
+    public enum class ReloadState {
+        Loading,
+        Ready,
+        Error,
+    }
+
+    public data class ReloadStarted(val state: ReloadState) : OrchestrationMessage()
+
     public data class ReloadClassesResult(
         val reloadRequestId: UUID,
         val isSuccess: Boolean,

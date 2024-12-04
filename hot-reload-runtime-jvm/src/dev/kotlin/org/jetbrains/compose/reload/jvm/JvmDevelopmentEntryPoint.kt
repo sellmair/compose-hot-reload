@@ -2,9 +2,11 @@
 
 package org.jetbrains.compose.reload.jvm
 
+import TopBanner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.reload.InternalHotReloadApi
@@ -47,25 +49,21 @@ internal fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
 
     /* Agent */
     val hotReloadState by hotReloadState.collectAsState()
+    val uiState by hotReloadUiState.collectAsState()
 
     CompositionLocalProvider(hotReloadStateLocal provides hotReloadState) {
         key(hotReloadState.key) {
             logger.orchestration("Composing UI: $hotReloadState")
+        }
 
-            /* Show hot reload error directly in the UI (and offer retry button) */
-            val hotReloadError = hotReloadState.error
-            if (hotReloadError != null) {
-                Box(Modifier.fillMaxSize()) {
-                    interceptedChild()
-                    HotReloadErrorWidget(hotReloadError, modifier = Modifier.matchParentSize())
-                }
-            } else {
-                /* If no error is present, we just show the child directly (w/o box) */
-                interceptedChild()
-            }
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            interceptedChild()
+            TopBanner(uiState, modifier = Modifier.align(Alignment.TopCenter))
         }
     }
-
 
     /* Notify orchestration about the UI being rendered */
     OrchestrationMessage.UIRendered(hotReloadState.reloadRequestId, hotReloadState.iteration).send()

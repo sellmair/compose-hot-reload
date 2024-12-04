@@ -1,8 +1,11 @@
 package org.jetbrains.compose.reload.agent
 
+import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent.orchestration
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_COMPILER
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadStarted
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadState
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -66,6 +69,7 @@ internal fun launchRecompiler() {
                 while (true) {
                     val nextLine = reader.readLine() ?: break
                     logger.debug("'Compose Recompiler' output: $nextLine")
+                    trySendReloadState(nextLine)
                     LogMessage(TAG_COMPILER, nextLine).send()
                 }
             }
@@ -91,6 +95,16 @@ internal fun launchRecompiler() {
         recompilerThread.interrupt()
         recompilerThread.join()
     }
+}
+
+private fun trySendReloadState(line: String) {
+    val state = when {
+        line.contains("Change detected, executing build...") -> ReloadState.Loading
+        line.contains("BUILD SUCCESSFUL") -> ReloadState.Ready
+        line.contains("BUILD FAILED") -> ReloadState.Error
+        else -> return
+    }
+    orchestration.sendMessage(ReloadStarted(state))
 }
 
 internal fun createGradleCommand(projectPath: String, task: String): String {
