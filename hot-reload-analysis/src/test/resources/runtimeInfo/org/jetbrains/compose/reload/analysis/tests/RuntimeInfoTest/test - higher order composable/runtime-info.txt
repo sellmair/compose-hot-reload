@@ -78,7 +78,7 @@ FooKt {
     Bar {
         desc: (Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
         key: 490236094
-        codeHash: 3009679741
+        codeHash: 4060995326
         dependencies: []
     
         RestartGroup {
@@ -91,7 +91,7 @@ FooKt {
     Foo {
         desc: (Landroidx/compose/runtime/Composer;I)V
         key: -965539098
-        codeHash: 38058978
+        codeHash: 1869626530
         dependencies: [
             FooKt.Foo$lambda$1 (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         ]

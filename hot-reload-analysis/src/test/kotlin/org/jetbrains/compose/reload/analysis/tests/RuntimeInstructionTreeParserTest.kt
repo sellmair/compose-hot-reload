@@ -6,6 +6,7 @@ import org.jetbrains.compose.reload.core.testFixtures.Compiler
 import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
 import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
 import org.jetbrains.compose.reload.core.testFixtures.asFileName
+import org.jetbrains.compose.reload.core.testFixtures.sanitized
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import kotlin.io.path.*
@@ -67,7 +68,7 @@ class RuntimeInstructionTreeParserTest {
             compiled.forEach { (_, bytecode) ->
                 this += renderRuntimeInstructionTree(bytecode)
             }
-        }.trim()
+        }.sanitized()
 
         val expectFile = directory.resolve("runtime-instructions-tree.txt")
         if (TestEnvironment.updateTestData) {
@@ -80,7 +81,7 @@ class RuntimeInstructionTreeParserTest {
             error("Runtime Instruction Tree '${expectFile.toUri()}' did not exist; Generated")
         }
 
-        if (expectFile.readText().trim() != rendered) {
+        if (expectFile.readText().sanitized() != rendered) {
             expectFile.resolveSibling(expectFile.nameWithoutExtension + "-actual.txt").writeText(rendered)
             error("Runtime Instruction Tree '${expectFile.toUri()}' did not match")
         }

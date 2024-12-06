@@ -19,14 +19,14 @@ FooKt {
     Foo {
         desc: (Landroidx/compose/runtime/Composer;I)V
         key: -965539098
-        codeHash: 2306144002
+        codeHash: 1773621320
         dependencies: [
             FooKt.Foo$lambda$2 (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         ]
     
         RestartGroup {
             key: -965539098
-            codeHash: 3063605154
+            codeHash: 3034049798
             dependencies: []
     
             ReplaceGroup {

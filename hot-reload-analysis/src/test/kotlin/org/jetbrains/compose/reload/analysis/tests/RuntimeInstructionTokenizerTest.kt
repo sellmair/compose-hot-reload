@@ -9,6 +9,7 @@ import org.jetbrains.compose.reload.core.testFixtures.Compiler
 import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
 import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
 import org.jetbrains.compose.reload.core.testFixtures.asFileName
+import org.jetbrains.compose.reload.core.testFixtures.sanitized
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import kotlin.io.path.*
@@ -101,7 +102,7 @@ class RuntimeInstructionTokenizerTest {
                 }
                 appendLine("}")
             }
-        }.trim()
+        }.sanitized()
 
         val actualFile = directory.resolve("runtime-instructions-tokens.txt")
 
@@ -115,11 +116,10 @@ class RuntimeInstructionTokenizerTest {
             error("Runtime Instruction Tokens '${actualFile.toUri()}' did not exist; Generated")
         }
 
-        val actualContent = actualFile.readText().trim()
+        val actualContent = actualFile.readText().sanitized()
         if (actualContent != rendered) {
             actualFile.resolveSibling(actualFile.nameWithoutExtension + "-actual.txt").writeText(rendered)
             error("Runtime Instruction Tokens '${actualFile.toUri()}' did not match")
         }
     }
 }
-

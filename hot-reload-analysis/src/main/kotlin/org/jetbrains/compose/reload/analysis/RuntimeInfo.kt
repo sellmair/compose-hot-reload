@@ -2,12 +2,9 @@
 
 package org.jetbrains.compose.reload.analysis
 
-import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.withClosure
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
-
-private val logger = createLogger()
 
 data class RuntimeInfo(val scopes: List<RuntimeScopeInfo>) {
     /**
@@ -59,6 +56,6 @@ internal fun createRuntimeScopeInfo(
         tree = tree,
         dependencies = tree.dependencies(),
         children = tree.children.map { child -> createRuntimeScopeInfo(methodId, child) },
-        hash = tree.runtimeScopeHash()
+        hash = tree.codeHash()
     )
 }

@@ -12,7 +12,7 @@ import java.util.zip.CRC32
 @JvmInline
 value class RuntimeInstructionTreeCodeHash(val value: Long)
 
-internal fun RuntimeInstructionTree.runtimeScopeHash(): RuntimeInstructionTreeCodeHash {
+internal fun RuntimeInstructionTree.codeHash(): RuntimeInstructionTreeCodeHash {
     val crc = CRC32()
 
     fun pushHash(value: Any?) {
@@ -83,6 +83,17 @@ internal fun RuntimeInstructionTree.runtimeScopeHash(): RuntimeInstructionTreeCo
                 }
             }
         }
+    }
+
+    /*
+    This is experimental/defensive:
+    Let's also incorporate the structure of children to the hash
+     */
+    children.forEach { child ->
+        pushHash(child.type.name)
+        pushHash(child.group?.key)
+        pushHash(child.failure?.message)
+        pushHash(child.failure?.throwable?.stackTraceToString())
     }
 
     return RuntimeInstructionTreeCodeHash(crc.value)

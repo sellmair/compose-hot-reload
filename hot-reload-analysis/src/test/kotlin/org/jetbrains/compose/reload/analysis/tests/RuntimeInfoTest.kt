@@ -286,8 +286,8 @@ private fun checkRuntimeInfo(
         appendLine(" Runtime Info:")
         appendLine("*/")
         appendLine()
-        appendLine(runtimeInfo?.render()?.escapeWhiteSpace())
-    }.escapeWhiteSpace()
+        appendLine(runtimeInfo?.render()?.sanitized())
+    }.sanitized()
 
     val directory = Path("src/test/resources/runtimeInfo")
         .resolve(testInfo.testClass.get().name.asFileName().replace(".", "/"))
@@ -308,16 +308,11 @@ private fun checkRuntimeInfo(
         fail("Runtime Info '${expectFile.toUri()}' did not exist; Generated")
     }
 
-    val expectContent = expectFile.readText().escapeWhiteSpace()
+    val expectContent = expectFile.readText().sanitized()
     if (expectContent != actualContent) {
         expectFile.resolveSibling(expectFile.nameWithoutExtension + "-actual.txt").writeText(actualContent)
         fail("Runtime Info '${expectFile.toUri()}' did not match")
     }
 
     return runtimeInfo
-}
-
-
-private fun String.escapeWhiteSpace(): String {
-    return lines().joinToString("\n").trim()
 }
