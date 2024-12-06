@@ -35,14 +35,14 @@ FooKt {
     Foo {
         desc: (Landroidx/compose/runtime/Composer;I)V
         key: -965539098
-        codeHash: 3981682454
+        codeHash: 2069135426
         dependencies: [
             FooKt.Foo$lambda$0 (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         ]
     
         RestartGroup {
             key: -965539098
-            codeHash: 1016417463
+            codeHash: 2051368075
             dependencies: [
                 FooKt.Bar (Landroidx/compose/runtime/Composer;I)V
             ]
@@ -52,14 +52,14 @@ FooKt {
     Bar {
         desc: (Landroidx/compose/runtime/Composer;I)V
         key: -2097341767
-        codeHash: 748558690
+        codeHash: 1234805270
         dependencies: [
             FooKt.Bar$lambda$1 (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         ]
     
         RestartGroup {
             key: -2097341767
-            codeHash: 3750794218
+            codeHash: 3924052826
             dependencies: []
         }
     }

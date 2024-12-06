@@ -2,5 +2,6 @@ package org.jetbrains.compsoe.reload.analyzer.app.ui
 
 enum class FileViewTab {
     RuntimeInfo,
-    Javap
+    RuntimeTree,
+    Javap,
 }

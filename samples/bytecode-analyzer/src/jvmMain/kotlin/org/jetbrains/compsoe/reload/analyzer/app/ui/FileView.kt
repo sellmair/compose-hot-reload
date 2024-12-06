@@ -20,10 +20,12 @@ import io.sellmair.evas.compose.composeValue
 import org.jetbrains.compsoe.reload.analyzer.app.states.JavapState
 import org.jetbrains.compsoe.reload.analyzer.app.states.OpenedFileState
 import org.jetbrains.compsoe.reload.analyzer.app.states.RuntimeInfoState
+import org.jetbrains.compsoe.reload.analyzer.app.states.RuntimeTreeState
 import org.jetbrains.compsoe.reload.analyzer.app.states.WorkingDirectoryState
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeTo
+
 
 @Composable
 fun FileView() {
@@ -32,7 +34,6 @@ fun FileView() {
     var selectedTab by remember { mutableStateOf(FileViewTab.RuntimeInfo) }
 
     Column {
-
         Text(
             text = file.path.relativeTo(workingDirectory).pathString, style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(16.dp)
@@ -45,6 +46,14 @@ fun FileView() {
                     .selectable(
                         selected = selectedTab == FileViewTab.RuntimeInfo,
                         onClick = { selectedTab = FileViewTab.RuntimeInfo })
+                    .padding(16.dp)
+            )
+
+            Text(
+                "Runtime Tree", modifier = Modifier
+                    .selectable(
+                        selected = selectedTab == FileViewTab.RuntimeTree,
+                        onClick = { selectedTab = FileViewTab.RuntimeTree })
                     .padding(16.dp)
             )
 
@@ -66,6 +75,7 @@ fun FileView() {
             {
                 when (selectedTab) {
                     FileViewTab.RuntimeInfo -> RuntimeInfoView(file.path)
+                    FileViewTab.RuntimeTree -> RuntimeTree(file.path)
                     FileViewTab.Javap -> JavapView(file.path)
                 }
             }
@@ -93,6 +103,17 @@ fun RuntimeInfoView(file: Path) {
 
         is RuntimeInfoState.Loading -> CircularProgressIndicator()
         is RuntimeInfoState.Result -> Text(state.rendered)
+    }
+}
+
+
+@Composable
+fun RuntimeTree(file: Path) {
+    val state = RuntimeTreeState.Key(file).composeValue() ?: return
+    when (state) {
+        is RuntimeTreeState.Error -> Text("Failed to parse RuntimeTree: ${state.message}")
+        is RuntimeTreeState.Loading -> CircularProgressIndicator()
+        is RuntimeTreeState.Result -> Text(state.rendered)
     }
 }
 

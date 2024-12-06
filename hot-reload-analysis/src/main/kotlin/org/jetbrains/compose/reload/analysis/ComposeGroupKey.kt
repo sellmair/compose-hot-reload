@@ -12,6 +12,8 @@ package org.jetbrains.compose.reload.analysis
 @JvmInline
 value class ComposeGroupKey(val key: Int)
 
+fun ComposeGroupKey(key: Int?): ComposeGroupKey? = key?.let(::ComposeGroupKey)
+
 internal object SpecialComposeGroupKeys {
     /**
      * W/o 'OptimizeNonSkippingGroup' each call to remember is wrapped in its own group with this key.

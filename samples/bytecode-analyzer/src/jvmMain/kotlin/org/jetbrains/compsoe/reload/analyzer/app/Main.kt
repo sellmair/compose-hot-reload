@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compsoe.reload.analyzer.app.states.launchFileTreeState
+import org.jetbrains.compsoe.reload.analyzer.app.states.launchRuntimeTreeState
 import org.jetbrains.compsoe.reload.analyzer.app.states.launchJavapState
 import org.jetbrains.compsoe.reload.analyzer.app.states.launchOpenFileState
 import org.jetbrains.compsoe.reload.analyzer.app.states.launchRuntimeInfoState
@@ -34,6 +35,7 @@ fun main() {
     applicationScope.launchOpenFileState()
     applicationScope.launchJavapState()
     applicationScope.launchRuntimeInfoState()
+    applicationScope.launchRuntimeTreeState()
 
     singleWindowApplication(
         title = "Bytecode Analyzer",

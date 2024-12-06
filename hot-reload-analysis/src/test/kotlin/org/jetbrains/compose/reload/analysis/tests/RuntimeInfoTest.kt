@@ -1,23 +1,16 @@
 package org.jetbrains.compose.reload.analysis.tests
 
 import org.jetbrains.compose.reload.analysis.RuntimeInfo
+import org.jetbrains.compose.reload.analysis.RuntimeScopeInfo
 import org.jetbrains.compose.reload.analysis.SpecialComposeGroupKeys
-import org.jetbrains.compose.reload.analysis.render
-import org.jetbrains.compose.reload.core.testFixtures.Compiler
-import org.jetbrains.compose.reload.core.testFixtures.CompilerOption
-import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
-import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
 import org.jetbrains.compose.reload.analysis.javap
-import org.jetbrains.compose.reload.core.testFixtures.withOptions
+import org.jetbrains.compose.reload.analysis.render
+import org.jetbrains.compose.reload.core.testFixtures.*
+import org.jetbrains.compose.reload.core.withClosure
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
-import kotlin.io.path.Path
-import kotlin.io.path.createParentDirectories
-import kotlin.io.path.exists
-import kotlin.io.path.nameWithoutExtension
-import kotlin.io.path.readText
-import kotlin.io.path.writeText
+import kotlin.io.path.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.fail
@@ -211,7 +204,7 @@ class RuntimeInfoTest {
 
         root.children.forEach { scope ->
             assertEquals(
-                SpecialComposeGroupKeys.remember, scope.group,
+                SpecialComposeGroupKeys.remember, scope.tree.group,
                 "Expected remember group key to equal ${SpecialComposeGroupKeys.remember.key}"
             )
         }
@@ -252,7 +245,17 @@ class RuntimeInfoTest {
         ) ?: fail("Missing 'runtimeInfo'")
 
         assertNotEquals(code, codeAfter)
-        assertEquals(runtimeInfoBefore, runtimeInfoAfter)
+
+        val beforeScopes = runtimeInfoBefore.scopes.withClosure<RuntimeScopeInfo> { scope -> scope.children }.toList()
+        val afterScopes = runtimeInfoAfter.scopes.withClosure<RuntimeScopeInfo> { scope -> scope.children }.toList()
+
+        beforeScopes.forEachIndexed { index, beforeScope ->
+            val afterScope = afterScopes[index]
+            assertEquals(beforeScope.tree.group, afterScope.tree.group)
+            assertEquals(beforeScope.tree.type, afterScope.tree.type)
+            assertEquals(beforeScope.dependencies, afterScope.dependencies)
+            assertEquals(beforeScope.hash, afterScope.hash)
+        }
     }
 }
 

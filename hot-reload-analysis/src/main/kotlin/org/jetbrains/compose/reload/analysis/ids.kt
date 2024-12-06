@@ -11,6 +11,8 @@ internal const val endReplaceGroupMethodName = "endReplaceGroup"
 internal const val endRestartGroupMethodName = "endRestartGroup"
 internal const val sourceInformationMarkerEndMethodName = "sourceInformationMarkerEnd"
 
+internal const val functionKeyMetaConstructorDescriptor = "Landroidx/compose/runtime/internal/FunctionKeyMeta;"
+
 internal object MethodIds {
     object Composer {
         val traceEventStart = MethodId(

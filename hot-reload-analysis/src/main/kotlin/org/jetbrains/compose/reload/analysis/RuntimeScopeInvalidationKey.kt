@@ -28,7 +28,7 @@ fun RuntimeInfo.resolveInvalidationKey(groupKey: ComposeGroupKey): RuntimeScopeI
          */
         val children = scope.children.filter { info ->
             /* w/o 'OptimizeNonSkippingGroup, remember blocks will have their own group */
-            info.group == SpecialComposeGroupKeys.remember
+            info.tree.group == SpecialComposeGroupKeys.remember
         }
 
         dependencies + children

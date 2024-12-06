@@ -37,14 +37,14 @@ FooKt {
     App {
         desc: (Landroidx/compose/runtime/Composer;I)V
         key: 857161579
-        codeHash: 2031969285
+        codeHash: 3498189404
         dependencies: [
             FooKt.App$lambda$3 (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         ]
     
         RestartGroup {
             key: 857161579
-            codeHash: 1955788785
+            codeHash: 2079618684
             dependencies: [
                 FooKt.App$lambda$2$lambda$1$lambda$0 (Landroidx/compose/ui/graphics/drawscope/DrawScope;)Lkotlin/Unit;
             ]
