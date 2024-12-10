@@ -54,6 +54,24 @@ sealed class RuntimeInstructionToken {
         }
     }
 
+    data class StartSourceInfoMarker(
+        val info: SourceInfo,
+        val key: ComposeGroupKey,
+        override val instructions: List<AbstractInsnNode>
+    ) : RuntimeInstructionToken() {
+        override fun toString(): String {
+            return "StartSourceInfoMarker(${info.fileName}#${info.functionName})"
+        }
+    }
+
+    data class EndSourceInfoMarker(
+        override val instructions: List<AbstractInsnNode>
+    ) : RuntimeInstructionToken() {
+        override fun toString(): String {
+            return "EndSourceInfoMarker()"
+        }
+    }
+
     data class JumpToken(
         val jumpInsn: JumpInsnNode
     ) : RuntimeInstructionToken() {
@@ -88,6 +106,7 @@ sealed class RuntimeInstructionToken {
             return "BlockToken(${instructions.size})"
         }
     }
+
 }
 
 internal sealed class RuntimeInstructionTokenizer {
@@ -137,6 +156,8 @@ private val priorityTokenizer by lazy {
         EndRestartGroupTokenizer,
         StartReplaceGroupTokenizer,
         EndReplaceGroupTokenizer,
+        StartSourceInfoMarkerTokenizer,
+        EndSourceInfoMarkerTokenizer
     )
 }
 
@@ -227,6 +248,43 @@ private object EndReplaceGroupTokenizer : RuntimeInstructionTokenizer() {
         val expectedMethodIns = context[0] as? MethodInsnNode ?: return null
         if (MethodId(expectedMethodIns) == MethodIds.Composer.endReplaceGroup) {
             return EndReplaceGroup(listOf(expectedMethodIns)).toLeft()
+        }
+
+        return null
+    }
+}
+
+private object StartSourceInfoMarkerTokenizer : RuntimeInstructionTokenizer() {
+    override fun nextToken(context: TokenizerContext): Either<RuntimeInstructionToken, Failure>? {
+        val expectedKey = context[-3] ?: return null
+        val expectedLdc = context[-2] ?: return null
+        val expectedMethodInsn = context[1] ?: return null
+
+        if (expectedMethodInsn is MethodInsnNode &&
+            MethodId(expectedMethodInsn) == MethodIds.Composer.sourceInformationMarkerStart
+        ) {
+            val groupKey = expectedKey.intValueOrNull() ?: return null
+            val info = expectedLdc.stringValueOrNull() ?: return Failure(
+                "Failed parsing StartSourceInfoMarker token: expected LDC string value"
+            ).toRight()
+            val parsedInfo = parseSourceInfo(info)
+
+            return RuntimeInstructionToken.StartSourceInfoMarker(
+                parsedInfo,
+                ComposeGroupKey(groupKey),
+                listOf(expectedLdc, expectedMethodInsn)
+            ).toLeft()
+        }
+
+        return null
+    }
+}
+
+private object EndSourceInfoMarkerTokenizer : RuntimeInstructionTokenizer() {
+    override fun nextToken(context: TokenizerContext): Either<RuntimeInstructionToken, Failure>? {
+        val expectedMethodIns = context[0] as? MethodInsnNode ?: return null
+        if (MethodId(expectedMethodIns) == MethodIds.Composer.sourceInformationMarkerEnd) {
+            return RuntimeInstructionToken.EndSourceInfoMarker(listOf(expectedMethodIns)).toLeft()
         }
 
         return null

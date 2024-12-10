@@ -84,7 +84,9 @@ private class CompilerImpl(
             "plugin:androidx.compose.compiler.plugins.kotlin:featureFlag=OptimizeNonSkippingGroups"
                 .takeIf { options[CompilerOption.OptimizeNonSkippingGroups] == true },
             "plugin:androidx.compose.compiler.plugins.kotlin:generateFunctionKeyMetaAnnotations=function"
-                .takeIf { options[CompilerOption.GenerateFunctionKeyMetaAnnotations] == true }
+                .takeIf { options[CompilerOption.GenerateFunctionKeyMetaAnnotations] == true },
+            "plugin:androidx.compose.compiler.plugins.kotlin:sourceInformation=true"
+                .takeIf { options[CompilerOption.SourceInformation] == true }
         ).toTypedArray()
 
         arguments.freeArgs = code.keys.map { path -> workingDir.resolve(path).absolutePathString() }
