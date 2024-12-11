@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.sellmair.evas.compose.composeValue
@@ -29,7 +30,7 @@ fun DevToolingConsole(tag: String, modifier: Modifier) {
     val logState = ConsoleLogState.Key(tag).composeValue()
 
     LaunchedEffect(logState) {
-        if(logState.logs.isEmpty()) return@LaunchedEffect
+        if (logState.logs.isEmpty()) return@LaunchedEffect
         listState.scrollToItem(logState.logs.lastIndex)
     }
 
@@ -38,21 +39,17 @@ fun DevToolingConsole(tag: String, modifier: Modifier) {
             isExpanded = isExpanded,
             onClick = { expanded -> isExpanded = expanded },
         ) {
-            Text(tag, fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            Text(tag, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
 
         AnimatedVisibility(isExpanded) {
             Card(Modifier.padding(8.dp).fillMaxWidth()) {
-                Box(Modifier.padding(8.dp)) {
-                    LazyColumn(state = listState, modifier = Modifier.wrapContentHeight()) {
-                        items(logState.logs) { text ->
-                            Row {
-                                Text(
-                                    text, fontFamily = FontFamily.Monospace,
-                                    fontSize = 12.sp
-                                )
-                            }
-                        }
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.padding(8.dp).wrapContentHeight()
+                ) {
+                    items(logState.logs) { text ->
+                        Text(text, fontFamily = FontFamily.Monospace, fontSize = 12.sp)
                     }
                 }
             }
@@ -65,13 +62,15 @@ fun ExpandButton(
     isExpanded: Boolean,
     onClick: (expanded: Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    children: @Composable () -> Unit
+    children: @Composable RowScope.() -> Unit
 ) {
     val rotation by animateFloatAsState(if (isExpanded) 0f else -90f)
 
-    Row(modifier.clickable(onClick = {
-        onClick(!isExpanded)
-    }), verticalAlignment = CenterVertically) {
+    Row(
+        modifier = modifier
+            .clickable(onClick = { onClick(!isExpanded) }),
+        verticalAlignment = CenterVertically,
+    ) {
         Icon(
             Icons.Default.ArrowDropDown, contentDescription = null,
             modifier = Modifier.rotate(rotation),
