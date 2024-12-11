@@ -11,27 +11,15 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessag
 
 @Composable
 internal fun DevToolingWidget(modifier: Modifier = Modifier) {
-    Column(modifier) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier.fillMaxSize()
+    ) {
         DevToolingToolbar()
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            DevToolingConsole(
-                tag = LogMessage.TAG_COMPILER,
-                modifier = Modifier.weight(1f, fill = false)
-            )
-
-            DevToolingConsole(
-                tag = LogMessage.TAG_AGENT,
-                modifier = Modifier.weight(1f, fill = false),
-            )
-
-            DevToolingConsole(
-                tag = LogMessage.TAG_RUNTIME,
-                modifier = Modifier.weight(1f, fill = false),
-            )
-        }
+        val consoleWeight = Modifier.weight(1f, fill = false)
+        DevToolingConsole(LogMessage.TAG_COMPILER, consoleWeight)
+        DevToolingConsole(LogMessage.TAG_AGENT, consoleWeight)
+        DevToolingConsole(LogMessage.TAG_RUNTIME, consoleWeight)
     }
 }
