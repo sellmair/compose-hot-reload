@@ -3,14 +3,21 @@ package org.jetbrains.compose.reload.jvm.tooling
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -33,7 +40,9 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
+import io.sellmair.evas.compose.composeValue
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
 import kotlin.time.Duration.Companion.milliseconds
 
 private val DevToolingSidecarShape = RoundedCornerShape(8.dp)
@@ -94,36 +103,45 @@ fun ApplicationScope.DevToolingSidecar(windowState: WindowState) {
         alwaysOnTop = true
     ) {
 
-        Column(
+        Row(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.End,
+            horizontalArrangement = Arrangement.End,
         ) {
             AnimatedContent(
                 isExpanded,
                 modifier = Modifier
                     .heightIn(max = windowState.size.height)
-                    .padding(8.dp)
-                    .reloadBorder()
+                    .reloadBorder(
+                        shape = DevToolingSidecarShape,
+                        idleColor = if (isExpanded) Color.LightGray else Color.Transparent
+                    )
                     .clip(DevToolingSidecarShape)
                     .background(Color.White.copy(alpha = 0.9f))
-                    .padding(4.dp)
+                    .reloadBackground(if (isExpanded) Color.LightGray else reloadColorOk)
+                    .then(if (isExpanded) Modifier.weight(1f) else Modifier)
             ) { expandedState ->
                 if (!expandedState) {
                     IconButton(
                         onClick = { isExpanded = true },
                         modifier = Modifier
-                            .padding(2.dp)
-                            .size(24.dp)
+                            .animateEnterExit(enter = fadeIn(), exit = fadeOut())
+                            .size(32.dp)
                     ) {
-                        ComposeLogo(Modifier.fillMaxSize())
+                        ComposeLogo(Modifier.size(24.dp))
                     }
                 } else {
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         DevToolingToolbar({ isExpanded = false })
                         DevToolingWidget(Modifier.padding(8.dp).fillMaxSize())
                     }
                 }
             }
+
+            ReloadStateBanner(
+                ReloadState.composeValue(),
+                modifier = Modifier.fillMaxHeight()
+                    .padding(4.dp)
+            )
         }
     }
 }
