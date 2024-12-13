@@ -1,35 +1,18 @@
 package org.jetbrains.compose.reload.jvm.tooling
 
-import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.*
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,7 +32,7 @@ private val DevToolingSidecarShape = RoundedCornerShape(8.dp)
 
 @Composable
 fun ApplicationScope.DevToolingSidecar(windowState: WindowState) {
-    val animationDuration = 256
+    val animationDuration = 512
     var isExpanded by remember { mutableStateOf(false) }
     var sideCarWidth by remember { mutableStateOf(if (isExpanded) 512.dp else 64.dp) }
 
@@ -118,19 +101,28 @@ fun ApplicationScope.DevToolingSidecar(windowState: WindowState) {
                     .clip(DevToolingSidecarShape)
                     .background(Color.White.copy(alpha = 0.9f))
                     .reloadBackground(if (isExpanded) Color.LightGray else reloadColorOk)
-                    .then(if (isExpanded) Modifier.weight(1f) else Modifier)
+                    .weight(1f, fill = false),
+                transitionSpec = {
+                    (fadeIn(animationSpec = tween(220, delayMillis = 128)) +
+                            scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 128)))
+                        .togetherWith(fadeOut(animationSpec = tween(90)))
+                },
+                contentAlignment = Alignment.TopEnd,
             ) { expandedState ->
                 if (!expandedState) {
-                    IconButton(
-                        onClick = { isExpanded = true },
-                        modifier = Modifier
-                            .animateEnterExit(enter = fadeIn(), exit = fadeOut())
-                            .size(32.dp)
-                    ) {
-                        ComposeLogo(Modifier.size(24.dp))
-                    }
+                        IconButton(
+                            onClick = { isExpanded = true },
+                            modifier = Modifier
+                                .animateEnterExit(
+                                    enter = fadeIn(tween(220)),
+                                    exit = fadeOut(tween(50)))
+                                .size(32.dp)
+                        ) {
+                            ComposeLogo(Modifier.size(24.dp))
+                        }
+
                 } else {
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column {
                         DevToolingToolbar({ isExpanded = false })
                         DevToolingWidget(Modifier.padding(8.dp).fillMaxSize())
                     }
