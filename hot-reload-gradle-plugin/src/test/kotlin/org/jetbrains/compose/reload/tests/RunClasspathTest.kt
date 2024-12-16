@@ -2,6 +2,7 @@ package org.jetbrains.compose.reload.tests
 
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.compose.reload.*
+import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.utils.*
 import org.junit.jupiter.api.Test
 

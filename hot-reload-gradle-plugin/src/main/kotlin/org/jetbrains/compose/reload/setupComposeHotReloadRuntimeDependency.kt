@@ -1,6 +1,7 @@
 package org.jetbrains.compose.reload
 
 import org.gradle.api.Project
+import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 
 internal fun Project.setupComposeHotReloadRuntimeDependency() {
     /*

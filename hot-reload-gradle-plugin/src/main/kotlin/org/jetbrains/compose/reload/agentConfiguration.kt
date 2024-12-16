@@ -4,6 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.file.FileCollection
+import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 
 
 private const val composeHotReloadAgentConfigurationName = "composeHotReloadAgent"

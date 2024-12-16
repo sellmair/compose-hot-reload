@@ -25,6 +25,21 @@ tasks.withType<AbstractTestTask>().configureEach {
             "firework.version", project.versionCatalogs.named("deps").findVersion("firework").get().requiredVersion
         )
 
+        systemProperty(
+            "repo.path", project.rootDir.absolutePath
+        )
+
+        /* We do not want to open actual windows */
+        systemProperty("apple.awt.UIElement", true)
+
+        if (!providers.environmentVariable("CI").isPresent) {
+            systemProperty("junit.jupiter.execution.parallel.enabled", "true")
+            systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
+            systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
+            systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "4")
+        }
+
+        maxParallelForks = 2
     }
 
     testLogging {

@@ -57,6 +57,7 @@ include(":hot-reload-runtime-api")
 include(":hot-reload-runtime-jvm")
 include(":hot-reload-devtools")
 include(":hot-reload-under-test")
+include(":functionalTests")
 
 gradle.beforeProject {
     group = "org.jetbrains.compose"
