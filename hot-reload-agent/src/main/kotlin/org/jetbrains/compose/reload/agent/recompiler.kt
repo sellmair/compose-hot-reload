@@ -1,5 +1,7 @@
 package org.jetbrains.compose.reload.agent
 
+import org.jetbrains.compose.reload.core.BuildSystem
+import org.jetbrains.compose.reload.core.BuildSystem.*
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.createLogger
@@ -15,9 +17,15 @@ import kotlin.concurrent.thread
 import kotlin.io.path.pathString
 
 private val logger = createLogger()
+
+private val buildSystem: BuildSystem = HotReloadEnvironment.buildSystem 
+
 private val gradleBuildRoot: String? = HotReloadEnvironment.gradleBuildRoot
 private val gradleBuildProject: String? = HotReloadEnvironment.gradleBuildProject
 private val gradleBuildTask: String? = HotReloadEnvironment.gradleBuildTask
+
+private val amperBuildRoot: String? = HotReloadEnvironment.amperBuildRoot
+private val amperBuildTask: String? = HotReloadEnvironment.amperBuildTask
 
 private val recompileRequests = LinkedBlockingQueue<RecompileRequest>(
     /*
@@ -35,33 +43,57 @@ private val recompileRequests = LinkedBlockingQueue<RecompileRequest>(
 )
 
 internal fun launchRecompiler() {
-    val gradleBuildRoot = gradleBuildRoot ?: run {
-        logger.error("Missing 'compose.build.root' property")
-        return
-    }
-
-    val gradleBuildProject = gradleBuildProject ?: run {
-        logger.error("Missing 'compose.build.project' property")
-        return
-    }
-
-    val gradleBuildTask = gradleBuildTask ?: run {
-        logger.error("Missing 'compose.build.compile.task' property")
-        return
-    }
 
     val port = ComposeHotReloadAgent.orchestration.port
     logger.debug("'Compose Recompiler': Using orchestration at '$port'")
 
+    val processBuilder = when (buildSystem) {
+        Amper -> {
+            val amperBuildRoot = amperBuildRoot ?: run {
+                logger.error("Missing '${HotReloadProperty.AmperBuildRoot.key}' property")
+                return
+            }
+
+            val amperBuildTask = amperBuildTask ?: run {
+                logger.error("Missing '${HotReloadProperty.AmperBuildTask.key}' property")
+                return
+            }
+
+            createRecompilerProcessBuilder(
+                amperBuildRoot = amperBuildRoot,
+                amperBuildTask = amperBuildTask,
+                orchestrationPort = port
+            )
+        }
+
+        Gradle -> {
+            val composeBuildRoot = gradleBuildRoot ?: run {
+                logger.error("Missing '${HotReloadProperty.GradleBuildRoot.key}' property")
+                return
+            }
+
+            val gradleBuildProject = gradleBuildProject ?: run {
+                logger.error("Missing '${HotReloadProperty.GradleBuildProject.key}' property")
+                return
+            }
+
+            val gradleBuildTask = gradleBuildTask ?: run {
+                logger.error("Missing '${HotReloadProperty.GradleBuildTask.key}' property")
+                return
+            }
+
+            createRecompilerProcessBuilder(
+                gradleBuildRoot = composeBuildRoot,
+                gradleBuildProject = gradleBuildProject,
+                gradleBuildTask = gradleBuildTask,
+                orchestrationPort = port
+            )
+        }
+    }
+    
+
     val recompilerThread = thread(name = "Recompiler") {
         logger.debug("'Recompiler' started")
-
-        val processBuilder = createRecompilerProcessBuilder(
-            gradleBuildRoot = gradleBuildRoot,
-            gradleBuildProject = gradleBuildProject,
-            gradleBuildTask = gradleBuildTask,
-            orchestrationPort = port
-        )
 
         try {
             /*
@@ -153,7 +185,7 @@ private fun createRecompilerProcessBuilder(
 ): ProcessBuilder {
     return ProcessBuilder().directory(File(gradleBuildRoot))
         .command(
-            createRecompilerCommandLineArgs(
+            createRecompilerGradleCommandLineArgs(
                 gradleBuildProject = gradleBuildProject,
                 gradleBuildTask = gradleBuildTask,
                 orchestrationPort = orchestrationPort
@@ -163,7 +195,18 @@ private fun createRecompilerProcessBuilder(
         .redirectErrorStream(true)
 }
 
-private fun createRecompilerCommandLineArgs(
+private fun createRecompilerProcessBuilder(
+    amperBuildRoot: String,
+    amperBuildTask: String,
+    orchestrationPort: Int,
+): ProcessBuilder {
+    return ProcessBuilder().directory(File(amperBuildRoot))
+        .command(createRecompilerAmperCommandLineArgs(amperBuildTask))
+        .apply { environment().putIfAbsent("COMPOSE_HOT_RELOAD_ORCHESTRATION_PORT", orchestrationPort.toString()) }
+        .redirectErrorStream(true)
+}
+
+private fun createRecompilerGradleCommandLineArgs(
     gradleBuildProject: String,
     gradleBuildTask: String,
     orchestrationPort: Int
@@ -195,5 +238,19 @@ private fun createRecompilerCommandLineArgs(
         "-t".takeIf { HotReloadEnvironment.gradleBuildContinuous },
         "--priority=low".takeIf { HotReloadEnvironment.gradleBuildContinuous },
         "--no-daemon".takeIf { HotReloadEnvironment.gradleBuildContinuous },
+    )
+}
+
+private fun createRecompilerAmperCommandLineArgs(amperBuildTask: String): List<String> {
+    val amperScriptCommand = if ("win" in System.getProperty("os.name").lowercase()) {
+        arrayOf("cmd", "/c", "start", "amper.bat")
+    } else {
+        arrayOf("./amper")
+    }
+    
+    return listOfNotNull(
+        *amperScriptCommand,
+        "task",
+        amperBuildTask,
     )
 }
