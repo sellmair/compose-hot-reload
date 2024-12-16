@@ -86,6 +86,7 @@ fun ApplicationScope.DevToolingSidecar(windowState: WindowState) {
         focusable = true,
         alwaysOnTop = true
     ) {
+        window.background = java.awt.Color(0, 0, 0, 0)
 
         Row(
             modifier = Modifier.fillMaxSize(),
