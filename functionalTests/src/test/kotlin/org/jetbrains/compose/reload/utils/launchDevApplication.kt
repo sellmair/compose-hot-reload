@@ -8,11 +8,7 @@ suspend fun HotReloadTestFixture.launchDevApplicationAndWait(
     projectPath: String = ":",
     className: String,
     funName: String
-) {
-    launchDevApplication(projectPath, className, funName)
-    skipToMessage<UIRendered>()
-    skipToMessage<RecompilerReady>()
-}
+) = runTransaction { launchDevApplicationAndWait(projectPath, className, funName) }
 
 fun HotReloadTestFixture.launchDevApplication(
     projectPath: String = ":",

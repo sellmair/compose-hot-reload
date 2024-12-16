@@ -2,12 +2,14 @@
 
 package org.jetbrains.compose.reload.tests
 
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.utils.*
 import kotlin.io.path.appendLines
 import kotlin.io.path.appendText
 
 class ScreenshotTests {
+    private val logger = createLogger()
 
     @HotReloadTest
     @DefaultSettingsGradleKts
@@ -25,9 +27,13 @@ class ScreenshotTests {
                 }
             }
             """.trimIndent()
+        logger.info("Check 'before' screenshot")
         fixture.checkScreenshot("before")
 
+        logger.info("Replace 'Hello' with 'Goodbye'")
         fixture.replaceSourceCodeAndReload("Hello", "Goodbye")
+
+        logger.info("Check 'after' screenshot")
         fixture.checkScreenshot("after")
     }
 
@@ -164,8 +170,9 @@ class ScreenshotTests {
         fixture.replaceSourceCodeAndReload("""// add effect""", """onTestEvent { state++ }""")
         fixture.checkScreenshot("3-addedEffect")
 
-        fixture.sendTestEvent()
-        fixture.checkScreenshot("4-afterEvent")
+        fixture.sendTestEvent { event ->
+            fixture.checkScreenshot("4-afterEvent")
+        }
     }
 
     @HotReloadTest
@@ -241,10 +248,12 @@ class ScreenshotTests {
         fixture.checkScreenshot("0-before")
 
         fixture.replaceSourceCodeAndReload("// lambda body", "state++")
-        fixture.sendTestEvent("inc")
 
-        fixture.skipToMessage<OrchestrationMessage.TestEvent> { event ->
-            event.payload == "run: myLambda"
+
+        fixture.sendTestEvent("inc") {
+            skipToMessage<OrchestrationMessage.TestEvent> { event ->
+                event.payload == "run: myLambda"
+            }
         }
 
         fixture.checkScreenshot("1-afterLambdaEngaged")
@@ -271,9 +280,11 @@ class ScreenshotTests {
             """.trimIndent().replace("%", "$")
         fixture.checkScreenshot("0-before")
 
-        fixture.replaceSourceCode("// add field", "val bar = 1902")
-        fixture.replaceSourceCode("\$foo", "\$bar")
-        fixture.awaitSourceCodeReloaded()
+        fixture.runTransaction {
+            fixture.replaceSourceCode("// add field", "val bar = 1902")
+            fixture.replaceSourceCode("\$foo", "\$bar")
+            awaitReload()
+        }
 
         fixture.checkScreenshot("1-after")
     }

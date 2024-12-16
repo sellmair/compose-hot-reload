@@ -26,12 +26,16 @@ class ErrorRecoveryTests {
         )
 
         fixture.checkScreenshot("0-initial")
-        code.replaceText("""TestText("Hello")""", """error("Foo")""")
-        assertEquals("Foo", fixture.skipToMessage<OrchestrationMessage.UIException>().message)
+        fixture.runTransaction {
+            code.replaceText("""TestText("Hello")""", """error("Foo")""")
+            assertEquals("Foo", skipToMessage<OrchestrationMessage.UIException>().message)
+        }
 
-        code.replaceText("""error("Foo")""", """TestText("Recovered")""")
-        fixture.awaitReload()
-        fixture.checkScreenshot("1-recovered")
+        fixture.runTransaction {
+            code.replaceText("""error("Foo")""", """TestText("Recovered")""")
+            awaitReload()
+            fixture.checkScreenshot("1-recovered")
+        }
     }
 
     @HotReloadTest
@@ -80,9 +84,9 @@ class ErrorRecoveryTests {
         We expect this to be rejected!
          */
         code.replaceText("""Foo: A()""", """Foo: B()""")
-        run {
-            val request = fixture.skipToMessage<OrchestrationMessage.ReloadClassesRequest>()
-            val result = fixture.skipToMessage<OrchestrationMessage.ReloadClassesResult>()
+        fixture.runTransaction {
+            val request = skipToMessage<OrchestrationMessage.ReloadClassesRequest>()
+            val result = skipToMessage<OrchestrationMessage.ReloadClassesResult>()
             assertEquals(request.messageId, result.reloadRequestId)
             assertFalse(result.isSuccess)
         }
@@ -91,9 +95,9 @@ class ErrorRecoveryTests {
         Recover from the illegal change: Revert to the original class
          */
         code.replaceText("""Foo: B()""", """Foo: A()""")
-        run {
-            val request = fixture.skipToMessage<OrchestrationMessage.ReloadClassesRequest>()
-            val result = fixture.skipToMessage<OrchestrationMessage.ReloadClassesResult>()
+        fixture.runTransaction {
+            val request = skipToMessage<OrchestrationMessage.ReloadClassesRequest>()
+            val result = skipToMessage<OrchestrationMessage.ReloadClassesResult>()
             assertEquals(request.messageId, result.reloadRequestId)
             assertTrue(result.isSuccess)
             fixture.checkScreenshot("2-recovered-reload")
@@ -104,8 +108,10 @@ class ErrorRecoveryTests {
         After recovery:
         Lets test if hot reload still works.
          */
-        code.replaceText("Before:", "After:")
-        fixture.awaitReload()
-        fixture.checkScreenshot("3-after-change")
+        fixture.runTransaction {
+            code.replaceText("Before:", "After:")
+            awaitReload()
+            fixture.checkScreenshot("3-after-change")
+        }
     }
 }

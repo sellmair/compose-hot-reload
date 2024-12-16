@@ -3,16 +3,16 @@ package org.jetbrains.compose.reload.utils
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.job
-import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.testFixtures.repositoryRoot
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.utils.GradleRunner.ExitCode
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.concurrent.thread
 import kotlin.io.path.*
 import kotlin.test.fail
+import kotlin.time.Duration.Companion.minutes
 
-private val logger = createLogger()
+private val logger = LoggerFactory.getLogger("Gradle")
 
 data class GradleRunner(
     val projectRoot: Path,
@@ -21,7 +21,11 @@ data class GradleRunner(
     val gradleHome: Path = Path("build/gradleHome"),
 ) {
     @JvmInline
-    value class ExitCode(val value: Int)
+    value class ExitCode(val value: Int) {
+        companion object {
+            val success = ExitCode(0)
+        }
+    }
 }
 
 fun ExitCode?.assertSuccess() {
@@ -42,8 +46,13 @@ suspend fun GradleRunner.build(vararg args: String): ExitCode? {
 
     val processBuilder = ProcessBuilder().directory(projectRoot.toFile()).command(
         *gradleScriptCommand,
+        "-Dorg.gradle.jvmargs=-Xmx1G",
         "-Dgradle.user.home=${gradleHome.absolutePathString()}",
-        "--no-daemon",
+        "-Dorg.gradle.daemon.idletimeout=${1.minutes.inWholeMilliseconds}",
+        "-i", "-s",
+        "--console=plain",
+        "--configuration-cache",
+        "--configuration-cache-problems=warn",
         *arguments.toTypedArray(),
         *args,
     )
@@ -51,12 +60,21 @@ suspend fun GradleRunner.build(vararg args: String): ExitCode? {
     val exitCode = CompletableDeferred<ExitCode?>()
 
     val thread = thread(name = "Gradle Runner") {
+        logger.info("Starting Gradle runner: ${processBuilder.command().joinToString("\n")}")
         val process = processBuilder.start()
 
         thread(name = "Gradle Runner Output Reader") {
             process.inputStream.bufferedReader().use { reader ->
                 while (true) {
-                    logger.trace(reader.readLine() ?: break)
+                    logger.debug(reader.readLine() ?: break)
+                }
+            }
+        }
+
+        thread(name = "Gradle Runner Error Reader") {
+            process.errorStream.bufferedReader().use { reader ->
+                while (true) {
+                    logger.debug(reader.readLine() ?: break)
                 }
             }
         }
@@ -78,7 +96,9 @@ suspend fun GradleRunner.build(vararg args: String): ExitCode? {
     }
 
     currentCoroutineContext().job.invokeOnCompletion {
-        thread.interrupt()
+        if (!exitCode.isActive) {
+            thread.interrupt()
+        }
     }
 
     return exitCode.await()

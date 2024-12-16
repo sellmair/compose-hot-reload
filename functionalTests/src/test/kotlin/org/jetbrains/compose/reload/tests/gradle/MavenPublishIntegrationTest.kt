@@ -7,10 +7,15 @@ import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.writeText
+import kotlin.time.Duration.Companion.minutes
 
 class MavenPublishIntegrationTest {
+    companion object {
+        val timeout = 5.minutes
+    }
+
     @Test
-    fun `test - publish with compose hot reload plugin applied - jvm`(@TempDir dir: Path) = runTest {
+    fun `test - publish with compose hot reload plugin applied - jvm`(@TempDir dir: Path) = runTest(timeout = timeout) {
         dir.resolve("build.gradle.kts").writeText(
             """
             plugins {
@@ -54,7 +59,7 @@ class MavenPublishIntegrationTest {
     }
 
     @Test
-    fun `test - publish with compose hot reload plugin applied - kmp`(@TempDir dir: Path) = runTest {
+    fun `test - publish with compose hot reload plugin applied - kmp`(@TempDir dir: Path) = runTest(timeout = timeout) {
         dir.resolve("build.gradle.kts").writeText(
             """
             plugins {

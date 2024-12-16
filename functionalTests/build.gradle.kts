@@ -1,3 +1,5 @@
+import org.gradle.internal.impldep.org.junit.platform.launcher.TagFilter.includeTags
+
 plugins {
     kotlin("jvm")
 }
@@ -32,27 +34,15 @@ val testWarmup by tasks.registering(Test::class) {
 
 tasks.test.configure {
     dependsOn(testWarmup)
-    useJUnitPlatform { excludeTags("Warmup") }
-}
-
-tasks.withType<Test>().configureEach {
     useJUnitPlatform {
+        excludeTags("Warmup")
         if (providers.gradleProperty("host-integration-tests").orNull == "true") {
             includeTags("HostIntegrationTest")
             environment("TEST_ONLY_LATEST_VERSIONS", "true")
         }
     }
+}
 
-    if (!providers.environmentVariable("CI").isPresent) {
-        systemProperty("junit.jupiter.execution.parallel.enabled", "true")
-        systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
-        systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
-        systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "4")
-    }
-
-    /* We do not want to open actual windows */
-    systemProperty("apple.awt.UIElement", true)
-
-    maxParallelForks = 2
+tasks.withType<Test>().configureEach {
     dependsOn(":publishLocally")
 }

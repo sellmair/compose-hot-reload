@@ -57,21 +57,34 @@ fun runDevApplicationHeadless(
     /* Main loop */
     applicationScope.launch {
         var time = 0L
-        val delay = 64.milliseconds
+        val delay = 128.milliseconds
         while (isActive) {
-            scene.render(time)
+            val render = scene.render(time)
+            while (isActive) {
+                if (scene.hasInvalidations()) break
+                val message = messages.tryReceive().getOrNull() ?: break
 
-            val message = if (!scene.hasInvalidations()) messages.tryReceive().getOrNull() else null
-            if (message is OrchestrationMessage.TakeScreenshotRequest) {
-                val baos = ByteArrayOutputStream()
-                ImageIO.write(scene.render().toComposeImageBitmap().toAwtImage(), "png", baos)
-                orchestration.sendMessage(OrchestrationMessage.Screenshot("png", baos.toByteArray())).get()
-                logger.debug("Screenshot sent")
-            }
+                if (message !is OrchestrationMessage.Ack) {
+                    orchestration.sendMessage(OrchestrationMessage.Ack(message.messageId)).get()
+                }
 
-            if (message is ShutdownRequest) {
-                applicationScope.coroutineContext.job.cancelChildren()
-                return@launch
+                /* Break out for TestEvents and give the main thread time to handle that */
+                if (message is OrchestrationMessage.TestEvent) {
+                    yield()
+                    break
+                }
+
+                if (message is OrchestrationMessage.TakeScreenshotRequest) {
+                    val baos = ByteArrayOutputStream()
+                    ImageIO.write(render.toComposeImageBitmap().toAwtImage(), "png", baos)
+                    orchestration.sendMessage(OrchestrationMessage.Screenshot("png", baos.toByteArray())).get()
+                    logger.debug("Screenshot sent")
+                }
+
+                if (message is ShutdownRequest) {
+                    applicationScope.coroutineContext.job.cancelChildren()
+                    return@launch
+                }
             }
 
             delay(delay)

@@ -11,7 +11,7 @@ tasks.withType<AbstractTestTask>().configureEach {
     if (this is Test) {
         useJUnitPlatform()
 
-        maxHeapSize = "4G"
+        maxHeapSize = "1G"
         properties.filter { (key, _) -> key.startsWith("chr") }.forEach { (key, value) ->
             systemProperty(key, value.toString())
         }

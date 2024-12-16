@@ -13,6 +13,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
@@ -63,14 +64,20 @@ private class OrchestrationServerImpl(
             }
         }
 
-        fun write(message: OrchestrationMessage): Future<Unit> = writingThread.submit<Unit> {
+        fun write(message: OrchestrationMessage): Future<Unit> {
             try {
-                output.writeObject(message)
-                output.flush()
-            } catch (_: Throwable) {
-                lock.withLock { clients.remove(this) }
-                logger.debug("Closing client: '$this'")
-                close()
+                return writingThread.submit<Unit> {
+                    try {
+                        output.writeObject(message)
+                        output.flush()
+                    } catch (_: Throwable) {
+                        lock.withLock { clients.remove(this) }
+                        logger.debug("Closing client: '$this'")
+                        close()
+                    }
+                }
+            } catch (t: RejectedExecutionException) {
+                return CompletableFuture.failedFuture(t)
             }
         }
 
@@ -99,6 +106,7 @@ private class OrchestrationServerImpl(
             try {
                 action(message)
             } catch (t: Throwable) {
+                assert(false) { throw t }
                 logger.error("Failed invoking orchestration listener", t)
                 logger.error("Failing listener was registered at:", registration)
             }
@@ -183,7 +191,7 @@ private class OrchestrationServerImpl(
                 continue
             }
 
-            logger.debug(
+            logger.trace(
                 "Received message: ${message.javaClass.simpleName} " +
                         "'$client': '${message.messageId}'"
             )

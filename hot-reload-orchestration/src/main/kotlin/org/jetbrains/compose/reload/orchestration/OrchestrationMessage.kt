@@ -126,6 +126,19 @@ public sealed class OrchestrationMessage : Serializable {
     }
 
     /**
+     * Noop empty message used to ping, or sync with the application.
+     */
+    public class Ping() : OrchestrationMessage()
+
+    /**
+     * Acknowledgement for a given message.
+     * Note: There is no guarantee for acks, this message can be used by tooling or in tests if needed
+     */
+    public data class Ack(
+        val acknowledgedMessageId: UUID
+    ) : OrchestrationMessage()
+
+    /**
      * An event sent for testing purposes:
      * For example, integration tests will send such payloads to communicate with
      * the 'application under test'

@@ -12,8 +12,9 @@ import kotlin.math.roundToInt
 import kotlin.test.fail
 
 suspend fun HotReloadTestFixture.checkScreenshot(name: String) {
-    orchestration.sendMessage(OrchestrationMessage.TakeScreenshotRequest())
-    val screenshot = skipToMessage<Screenshot>()
+    val screenshot = sendMessage(OrchestrationMessage.TakeScreenshotRequest()) {
+        skipToMessage<Screenshot>()
+    }
 
     val directory = Path("src/test/resources/screenshots")
         .resolve(testClassName.asFileName().replace(".", "/"))

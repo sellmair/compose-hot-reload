@@ -52,12 +52,16 @@ class DevelopmentEntryPointTests {
         fixture.launchDevApplicationAndWait(className = "DevKt", funName = "DevWidget")
         fixture.checkScreenshot("0-initial")
 
-        devKt.replaceText("Foo", "Bar")
-        fixture.awaitReload()
-        fixture.checkScreenshot("1-change-in-devKt")
+        fixture.runTransaction {
+            devKt.replaceText("Foo", "Bar")
+            awaitReload()
+            fixture.checkScreenshot("1-change-in-devKt")
+        }
 
-        mainKt.replaceText("Before", "After")
-        fixture.awaitReload()
-        fixture.checkScreenshot("2-change-in-mainKt")
+        fixture.runTransaction {
+            mainKt.replaceText("Before", "After")
+            awaitReload()
+            fixture.checkScreenshot("2-change-in-mainKt")
+        }
     }
 }

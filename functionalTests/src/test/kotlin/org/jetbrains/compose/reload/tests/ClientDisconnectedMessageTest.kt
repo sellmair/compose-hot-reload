@@ -29,13 +29,15 @@ class ClientDisconnectedMessageTest {
         """.trimIndent()
         )
 
-        testFixture.launchApplication()
-        testFixture.skipToMessage<OrchestrationMessage.UIRendered>()
-        testFixture.sendMessage(OrchestrationMessage.ShutdownRequest())
+        testFixture.runTransaction {
+            testFixture.launchApplication()
+            skipToMessage<OrchestrationMessage.UIRendered>()
+        }
 
-        while (true) {
-            val disconnected = testFixture.skipToMessage<ClientDisconnected>()
-            if (disconnected.clientRole == OrchestrationClientRole.Application) break
+        testFixture.sendMessage(OrchestrationMessage.ShutdownRequest()) {
+            skipToMessage<ClientDisconnected> { message ->
+                message.clientRole == OrchestrationClientRole.Application
+            }
         }
     }
 }

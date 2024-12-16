@@ -7,7 +7,7 @@
 
     <appender name="STDOUT" class="ConsoleAppender">
         <encoder class="PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} %logger{36} -%kvp- %msg%n</pattern>
+            <pattern>[APP] %-5level %logger{36} -%kvp- %msg%n</pattern>
         </encoder>
     </appender>
 

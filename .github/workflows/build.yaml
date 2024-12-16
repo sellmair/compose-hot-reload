@@ -26,6 +26,14 @@ jobs:
           key: ${{ runner.os }}-konan
           restore-keys: ${{ runner.os }}-konan
 
+
+      - name: Cache Grade Test Home
+        uses: actions/cache@v4
+        with:
+          path: |
+            functionalTests/build/gradleHome
+          key: ${{ runner.os }}
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:

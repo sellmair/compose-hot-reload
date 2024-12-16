@@ -226,11 +226,8 @@ private class HotReloadTestFixtureExtension(
             projectRoot =  projectDir.path,
             gradleVersion = context.gradleVersion.version,
             arguments = listOf(
-                "-Dorg.gradle.jvmargs=-Xmx2G",
                 "-P${HotReloadProperty.OrchestrationPort.key}=${orchestrationServer.port}",
                 "-P${HotReloadProperty.IsHeadless.key}=true",
-                "-i", "-s",
-                "--configuration-cache"
             )
         )
 
