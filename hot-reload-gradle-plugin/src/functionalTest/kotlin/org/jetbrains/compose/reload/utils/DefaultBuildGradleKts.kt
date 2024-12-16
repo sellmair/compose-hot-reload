@@ -92,6 +92,12 @@ private class DefaultBuildGradleKtsExtension() : BeforeTestExecutionCallback {
                         error("Unsupported compiler option: $key")
                     }
                 }
+
+                CompilerOption.SourceInformation -> {
+                    if (enabled != CompilerOption.SourceInformation.default) {
+                        error("Unsupported compiler option: $key")
+                    }
+                }
             }
         }
     }

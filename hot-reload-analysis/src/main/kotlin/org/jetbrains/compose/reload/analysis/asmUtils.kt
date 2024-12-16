@@ -27,6 +27,10 @@ internal fun AbstractInsnNode.intValueOrNull(): Int? {
     }
 }
 
+internal fun AbstractInsnNode.stringValueOrNull(): String? {
+    return (this as? LdcInsnNode)?.cst as? String
+}
+
 internal fun MethodNode.readFunctionKeyMetaAnnotation(): ComposeGroupKey? {
     val functionKey = visibleAnnotations.orEmpty().find { annotationNode ->
         annotationNode.desc == functionKeyMetaConstructorDescriptor

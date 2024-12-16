@@ -206,6 +206,27 @@ private fun parseRuntimeInstructionTree(
 
                 break
             }
+
+            is StartSourceInfoMarker -> {
+                val child = parseRuntimeInstructionTree(
+                    group = currentToken.key,
+                    type = RuntimeScopeType.SourceInformationMarker,
+                    tokens = tokens,
+                    startIndex = currentIndex + 2,
+                    endIndex = endIndex,
+                    consumed = listOf(currentToken)
+                ).leftOr { return it }
+                children += child
+                index = child.lastIndex + 2
+            }
+
+            is EndSourceInfoMarker -> {
+                if (type != RuntimeScopeType.SourceInformationMarker) {
+                    return Failure("EndSourceInfoMarker is not allowed in $type scope").toRight()
+                }
+                consumed += currentToken
+                break
+            }
         }
     }
 

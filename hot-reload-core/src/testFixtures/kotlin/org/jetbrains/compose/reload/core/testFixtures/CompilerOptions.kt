@@ -4,7 +4,8 @@ import org.jetbrains.compose.reload.core.testFixtures.CompilerOption.entries
 
 enum class CompilerOption(val default: Boolean) {
     OptimizeNonSkippingGroups(true),
-    GenerateFunctionKeyMetaAnnotations(true);
+    GenerateFunctionKeyMetaAnnotations(true),
+    SourceInformation(false);
 }
 
 object CompilerOptions {

@@ -32,9 +32,9 @@ internal object MethodIds {
         )
 
         val sourceInformationMarkerStart = MethodId(
-            composerClazzId,
+            composerKtClazzId,
             methodName = sourceInformationMarkerStartMethodName,
-            methodDescriptor = "(ILjava/lang/String;)V"
+            methodDescriptor = "(Landroidx/compose/runtime/Composer;ILjava/lang/String;)V"
         )
 
         val endReplaceGroup = MethodId(
@@ -50,9 +50,9 @@ internal object MethodIds {
         )
 
         val sourceInformationMarkerEnd = MethodId(
-            composerClazzId,
+            composerKtClazzId,
             methodName = sourceInformationMarkerEndMethodName,
-            methodDescriptor = "()V"
+            methodDescriptor = "(Landroidx/compose/runtime/Composer;)V"
         )
 
     }
