@@ -85,7 +85,8 @@ public sealed class OrchestrationMessage : Serializable {
     public data class ReloadClassesResult(
         val reloadRequestId: UUID,
         val isSuccess: Boolean,
-        val errorMessage: String? = null
+        val errorMessage: String? = null,
+        val errorStacktrace: List<StackTraceElement>? = null,
     ) : OrchestrationMessage()
 
     /**

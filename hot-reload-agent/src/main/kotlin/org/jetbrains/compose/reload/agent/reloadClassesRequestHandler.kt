@@ -2,6 +2,7 @@ package org.jetbrains.compose.reload.agent
 
 
 import org.jetbrains.compose.reload.core.createLogger
+import org.jetbrains.compose.reload.core.withLinearClosure
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.invokeWhenReceived
 import java.io.File
@@ -35,7 +36,9 @@ internal fun launchReloadClassesRequestHandler(instrumentation: Instrumentation)
             if (result.isFailure) {
                 logger.orchestration("Failed to reload classes", result.exceptionOrNull())
                 OrchestrationMessage.ReloadClassesResult(
-                    request.messageId, false, result.exceptionOrNull()?.message
+                    request.messageId, false, result.exceptionOrNull()?.message,
+                    result.exceptionOrNull()?.withLinearClosure { throwable -> throwable.cause }.orEmpty()
+                        .flatMap { throwable -> throwable.stackTrace.toList() }
                 ).send()
             }
 

@@ -69,7 +69,7 @@ internal fun reload(
         val daos = DataOutputStream(baos)
         clazz.classFile.write(daos)
 
-        ClassDefinition(Class.forName(clazz.name), baos.toByteArray())
+        ClassDefinition(originalClass ?: Class.forName(clazz.name), baos.toByteArray())
     }
 
     instrumentation.redefineClasses(*definitions.toTypedArray())
@@ -78,4 +78,3 @@ internal fun reload(
         definition.reinitializeStaticsIfNecessary()
     }
 }
-

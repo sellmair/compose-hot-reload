@@ -113,6 +113,12 @@ class TransactionScope(
         }
     }
 
+    suspend fun sync() {
+        val ping = OrchestrationMessage.Ping()
+        ping.send()
+        awaitAck(ping)
+    }
+
     suspend fun awaitAck(message: OrchestrationMessage) {
         /*
         There is no ACK for an ACK, and there is also no ACk for a shutdown request.
@@ -127,16 +133,20 @@ class TransactionScope(
         val reloadRequest = skipToMessage<ReloadClassesRequest>()
         val reloadResult = skipToMessage<ReloadClassesResult>()
         if (!reloadResult.isSuccess) {
-            fail("Failed to reload classes: ${reloadResult.errorMessage}")
+            fail("Failed to reload classes: ${reloadResult.errorMessage}", Throwable(reloadResult.errorMessage).apply {
+                stackTrace = reloadResult.errorStacktrace?.toTypedArray().orEmpty()
+            })
         }
 
         val rendered = skipToMessage<UIRendered>()
         assertEquals(reloadRequest.messageId, rendered.reloadRequestId)
+        sync()
     }
 
     suspend infix fun initialSourceCode(source: String): Path {
         val file = writeCode(source = source)
         launchApplicationAndWait()
+        sync()
         return file
     }
 
@@ -175,8 +185,4 @@ class TransactionScope(
         resolvedFile.writeText(source)
         return resolvedFile
     }
-}
-
-fun awaitAck(message: OrchestrationMessage): suspend TransactionScope.() -> Unit = {
-    this.awaitAck(message)
 }
